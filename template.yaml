@@ -1,10 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: awsdingler-api
+Description: awsdingler-serverless-api
 Globals:
   Function:
     Timeout: 3
-
 
 Resources:
   HelloFunction:
@@ -19,6 +18,13 @@ Resources:
           Properties:
             Path: /hello
             Method: get
+
+  ExploreAnnouncements:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/
+      Handler: cron.exploreAnnouncements
+      Runtime: nodejs8.10
 
 Outputs:
   HelloApi:
