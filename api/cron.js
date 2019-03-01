@@ -2,11 +2,6 @@ const Parser = require('rss-parser');
 const _ = require('lodash');
 const parser = new Parser();
 
-const matches = (keywords, announcements) => {
-    const regex = new RegExp(keywords.join('|'));
-
-};
-
 exports.exploreAnnouncements = async (event, context) => {
     console.log('Event', event);
     const { keywords } = event;

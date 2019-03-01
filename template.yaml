@@ -12,6 +12,8 @@ Resources:
       CodeUri: api/
       Handler: app.hello
       Runtime: nodejs8.10
+      Layers:
+        - !Ref AlgorithmsLayer
       Events:
         Hello:
           Type: Api
@@ -25,6 +27,17 @@ Resources:
       CodeUri: api/
       Handler: cron.exploreAnnouncements
       Runtime: nodejs8.10
+
+  AlgorithmsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: AwsDinglerAlgorithms
+      Description: Reusable algorithmic functions
+      ContentUri: layers/nodejs/
+      CompatibleRuntimes:
+        - nodejs6.10
+        - nodejs8.10
+      LicenseInfo: 'MIT-0'
 
 Outputs:
   HelloApi:
