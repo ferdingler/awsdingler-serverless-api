@@ -18,6 +18,7 @@ Resources:
         Hello:
           Type: Api
           Properties:
+            RestApiId: !Ref ServerlessApi
             Path: /hello
             Method: get
 
@@ -39,7 +40,11 @@ Resources:
         - nodejs8.10
       LicenseInfo: 'MIT-0'
 
-Outputs:
-  HelloApi:
-    Description: "API Gateway endpoint URL for the Hello function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  ServerlessApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth:
+        Authorizers:
+          CognitoAuth:
+            UserPoolArn: !Sub 'arn:aws:cognito-idp:us-west-2:${AWS::AccountId}:userpool/us-west-2_IccpkvFLy'
