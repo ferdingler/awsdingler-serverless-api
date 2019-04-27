@@ -3,7 +3,7 @@ Transform: AWS::Serverless-2016-10-31
 Description: awsdingler-serverless-api
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 10
 
 Resources:
   HelloFunction:
@@ -44,7 +44,47 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      Auth:
-        Authorizers:
-          CognitoAuth:
-            UserPoolArn: !Sub 'arn:aws:cognito-idp:us-west-2:${AWS::AccountId}:userpool/us-west-2_IccpkvFLy'
+      DefinitionBody:
+        swagger: "2.0"
+        info:
+          version: "1.0"
+          title: "awsdingler-api"
+        host: "api.awsdingler.com"
+        basePath: "/v1"
+        schemes:
+          - "https"
+        consumes:
+          - application/json
+        produces:
+          - application/json
+        securityDefinitions:
+          cognitoUserPool:
+            type: apiKey
+            name: "Authorization"
+            in: header
+            x-amazon-apigateway-authtype: cognito_user_pools
+            x-amazon-apigateway-authorizer:
+              type: cognito_user_pools
+              providerARNs:
+                - Fn::Sub: "arn:aws:cognito-idp:us-west-2:${AWS::AccountId}:userpool/us-west-2_IccpkvFLy"
+        paths:
+          /hello:
+            get:
+              responses: {}
+              x-amazon-apigateway-integration:
+                uri: 
+                  Fn::Sub: "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/${HelloFunction.Arn}/invocations"
+                passthroughBehavior: "when_no_match"
+                httpMethod: "POST"
+                type: "aws_proxy"
+          /k8s/hello:
+            get:
+              responses: {}
+              x-amazon-apigateway-integration:
+                httpMethod: "GET"
+                type: "http_proxy"
+                uri: "http://a9a12520b4aa911e980ba02198db823a-2036306399.us-west-2.elb.amazonaws.com/"
+                passthroughBehavior: "when_no_match"
+                responses:
+                  default:
+                    statusCode: "200"
