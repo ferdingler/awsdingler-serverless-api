@@ -22,12 +22,16 @@ Resources:
             Path: /hello
             Method: get
 
-  ExploreAnnouncements:
+  KubernetesDashboard:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: api/
-      Handler: cron.exploreAnnouncements
+      Handler: cron.k8sDashboard
       Runtime: nodejs8.10
+      Events:
+        Type: Schedule
+        Properties:
+          Schedule: rate(5 minutes)
 
   AlgorithmsLayer:
     Type: AWS::Serverless::LayerVersion
@@ -83,7 +87,7 @@ Resources:
               x-amazon-apigateway-integration:
                 httpMethod: "GET"
                 type: "http_proxy"
-                uri: "http://a9a12520b4aa911e980ba02198db823a-2036306399.us-west-2.elb.amazonaws.com/"
+                uri: "http://a9a12520b4aa911e980ba02198db823a-ebc7c7512f5f4297.elb.us-west-2.amazonaws.com/"
                 passthroughBehavior: "when_no_match"
                 responses:
                   default:
