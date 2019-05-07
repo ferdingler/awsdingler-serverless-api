@@ -33,6 +33,7 @@ Resources:
         Variables:
           SPOT_TERMINATIONS_TABLE: !Ref SpotTerminationsTable
           SPOT_FLEET_ID: 'sfr-46600e5b-6af1-4566-bbe4-2e0bed996e77'
+          RESULTS_S3_BUCKET: !Ref KubernetesDashboardResultsBucket
       Policies:
         - AmazonS3FullAccess
         - CloudWatchFullAccess
@@ -82,6 +83,16 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
+
+  KubernetesDashboardResultsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ['*']
+            AllowedMethods: [GET]
+            AllowedOrigins: ['*']
+            Id: myCORSRuleId1
 
   AlgorithmsLayer:
     Type: AWS::Serverless::LayerVersion

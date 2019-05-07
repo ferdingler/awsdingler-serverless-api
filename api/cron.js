@@ -7,7 +7,7 @@ const s3 = new AWS.S3();
 const exportToS3 = async (results) => {
     console.log('Uploading results to S3');
     const upload = await s3.upload({
-        Bucket: 'awsdingler-k8s-dashboard',
+        Bucket: process.env['RESULTS_S3_BUCKET'],
         Key: 'latest.json',
         Body: JSON.stringify(results),
         ACL: 'public-read',
