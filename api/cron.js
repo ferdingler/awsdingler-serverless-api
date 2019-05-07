@@ -9,6 +9,7 @@ const exportToS3 = async (results) => {
         Bucket: 'awsdingler-k8s-dashboard',
         Key: 'latest.json',
         Body: JSON.stringify(results),
+        ACL: 'pulbic-read',
     }).promise();
     console.log('Upload Successful', upload);
     return upload;

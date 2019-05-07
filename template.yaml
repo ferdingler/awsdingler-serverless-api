@@ -28,10 +28,54 @@ Resources:
       CodeUri: api/
       Handler: cron.k8sDashboard
       Runtime: nodejs8.10
+      Timeout: 300
+      Policies:
+        - AmazonS3FullAccess
       Events:
-        Type: Schedule
-        Properties:
-          Schedule: rate(5 minutes)
+        Cron:
+          Type: Schedule
+          Properties:
+            Schedule: rate(5 minutes)
+
+  KubernetesSpotTerminationHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/
+      Handler: app.spotTerminationHandler
+      Runtime: nodejs8.10
+      Timeout: 60
+      Environment:
+        Variables:
+          SPOT_TERMINATIONS_TABLE: !Ref SpotTerminationsTable
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - ReadOnlyAccess
+      Events:
+        SpotTermination:
+          Type: CloudWatchEvent
+          Properties:
+            Pattern:
+              source:
+                - "aws.ec2"
+              detail-type:
+                - "EC2 Spot Instance Interruption Warning"
+
+  SpotTerminationsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      KeySchema:
+        - AttributeName: "fleetId"
+          KeyType: "HASH"
+        - AttributeName: "timestamp"
+          KeyType: "RANGE"
+      AttributeDefinitions:
+        - AttributeName: "fleetId"
+          AttributeType: "S"
+        - AttributeName: "timestamp"
+          AttributeType: "S"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
 
   AlgorithmsLayer:
     Type: AWS::Serverless::LayerVersion
