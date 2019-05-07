@@ -29,8 +29,14 @@ Resources:
       Handler: cron.k8sDashboard
       Runtime: nodejs8.10
       Timeout: 300
+      Environment:
+        Variables:
+          SPOT_TERMINATIONS_TABLE: !Ref SpotTerminationsTable
+          SPOT_FLEET_ID: 'sfr-46600e5b-6af1-4566-bbe4-2e0bed996e77'
       Policies:
         - AmazonS3FullAccess
+        - CloudWatchFullAccess
+        - AmazonDynamoDBFullAccess
       Events:
         Cron:
           Type: Schedule
