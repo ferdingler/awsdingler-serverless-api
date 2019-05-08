@@ -38,6 +38,7 @@ Resources:
         - AmazonS3FullAccess
         - CloudWatchFullAccess
         - AmazonDynamoDBFullAccess
+        - AmazonEC2ReadOnlyAccess
       Events:
         Cron:
           Type: Schedule
