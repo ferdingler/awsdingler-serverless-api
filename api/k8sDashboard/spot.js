@@ -3,6 +3,7 @@ const _ = require('lodash');
 
 const cloudWatch = new AWS.CloudWatch();
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
+const ec2 = new AWS.EC2();
 
 exports.lastTermination = async (spotTerminationsTable, spotFleetId) => {
     const terminations = await dynamoDb.query({
@@ -47,4 +48,18 @@ exports.cpuAverageUtilization = async (snapshot, spotFleetId) => {
 
     console.log('Got cpu metrics', JSON.stringify(cpuMetrics));
     return cpuMetrics.Datapoints;
+};
+
+exports.listSpotInstances = async (spotFleetId) => {
+    const instances = await ec2.describeSpotFleetInstances({
+        SpotFleetRequestId: spotFleetId,
+    }).promise();
+
+    return instances.ActiveInstances.map(instance => {
+        return {
+            InstanceType: instance.InstanceType,
+            InstanceHealth: instance.InstanceHealth,
+            InstanceId: instance.InstanceId.substring(0, 8)
+        }
+    });
 };

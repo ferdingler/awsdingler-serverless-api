@@ -40,10 +40,15 @@ exports.k8sDashboard = async () => {
         const cpuMetrics = await spot.cpuAverageUtilization(snapshot, spotFleetId);
         console.log('CpuMetrics count=', cpuMetrics.length);
 
+        console.log('Listing Spot Instances');
+        const instances = await spot.listSpotInstances(spotFleetId);
+        console.log('Got instances=', instances);
+
         return exportToS3({
             health: healthResult,
-            lastSpotTermination: lastSpotTermination,
-            cpuMetrics: cpuMetrics,
+            lastSpotTermination,
+            cpuMetrics,
+            instances,
         });
     } catch (err) {
         console.log('Failed to generate Dashboard', err);
