@@ -129,3 +129,6 @@ $RECYCLE.BIN/
 packaged.yaml
 
 # End of https://www.gitignore.io/api/osx,node,linux,windows
+
+# fdingler environment variables
+env.json
