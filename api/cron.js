@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const health = require('./k8sDashboard/health');
 const spot = require('./k8sDashboard/spot');
+const watchTower = require('./k8sDashboard/watchtower');
 const moment = require('moment');
 
 const s3Bucket = process.env['RESULTS_S3_BUCKET'];
@@ -44,11 +45,16 @@ exports.k8sDashboard = async () => {
         const instances = await spot.listSpotInstances(spotFleetId);
         console.log('Got instances=', instances);
 
+        console.log('Getting latency from watchtower metrics');
+        const latency = await watchTower.latencies(snapshot);
+        console.log('Got latencies', latency);
+
         return exportToS3({
             health: healthResult,
             lastSpotTermination,
             cpuMetrics,
             instances,
+            latency,
         });
     } catch (err) {
         console.log('Failed to generate Dashboard', err);
