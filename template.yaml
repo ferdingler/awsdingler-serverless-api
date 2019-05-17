@@ -5,6 +5,17 @@ Globals:
   Function:
     Timeout: 10
 
+Parameters:
+  KubeSpotFleetId:
+    Type: String
+  UptimeRobotUrl:
+    Type: String
+    Default: 'https://api.uptimerobot.com/v2'
+  UptimeRobotApiKey:
+    Type: String
+  UptimeRobotMonitorId:
+    Type: String
+
 Resources:
   HelloFunction:
     Type: AWS::Serverless::Function
@@ -29,11 +40,15 @@ Resources:
       Handler: cron.k8sDashboard
       Runtime: nodejs8.10
       Timeout: 300
+      MemorySize: 512
       Environment:
         Variables:
           SPOT_TERMINATIONS_TABLE: !Ref SpotTerminationsTable
-          SPOT_FLEET_ID: 'sfr-46600e5b-6af1-4566-bbe4-2e0bed996e77'
+          SPOT_FLEET_ID: !Ref KubeSpotFleetId
           RESULTS_S3_BUCKET: !Ref KubernetesDashboardResultsBucket
+          UPTIME_ROBOT_URL: !Ref UptimeRobotUrl
+          UPTIME_ROBOT_API_KEY: !Ref UptimeRobotApiKey
+          UPTIME_ROBOT_MONITOR_ID: !Ref UptimeRobotMonitorId
       Policies:
         - AmazonS3FullAccess
         - CloudWatchFullAccess

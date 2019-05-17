@@ -7,6 +7,9 @@ const moment = require('moment');
 const s3Bucket = process.env['RESULTS_S3_BUCKET'];
 const spotTerminationsTable = process.env['SPOT_TERMINATIONS_TABLE'];
 const spotFleetId = process.env['SPOT_FLEET_ID'];
+const uptimeRobotUrl = process.env['UPTIME_ROBOT_URL'];
+const uptimeRobotApiKey = process.env['UPTIME_ROBOT_API_KEY'];
+const uptimeRobotMonitorId = process.env['UPTIME_ROBOT_MONITOR_ID'];
 
 const s3 = new AWS.S3();
 const exportToS3 = async (results) => {
@@ -23,9 +26,13 @@ const exportToS3 = async (results) => {
 
 exports.k8sDashboard = async () => {
     const snapshot = moment();
+    console.log('Environment variables');
     console.log('Snapshot', snapshot.toISOString());
     console.log('SpotTerminationsTable', spotTerminationsTable);
     console.log('SpotFleetId', spotFleetId);
+    console.log('UptimeRobotUrl', uptimeRobotUrl);
+    console.log('UptimeRobotApiKey', uptimeRobotApiKey);
+    console.log('UptimeRobotMonitorId', uptimeRobotMonitorId);
     let healthResult;
 
     try {
@@ -49,12 +56,22 @@ exports.k8sDashboard = async () => {
         const latency = await watchTower.latencies(snapshot);
         console.log('Got latencies', latency);
 
+        console.log('Getting availability from watchtower metrics');
+        const availability = await watchTower.calculateAvailability(
+            snapshot,
+            uptimeRobotUrl,
+            uptimeRobotApiKey,
+            uptimeRobotMonitorId
+        );
+        console.log('Got availability', availability);
+
         return exportToS3({
             health: healthResult,
             lastSpotTermination,
             cpuMetrics,
             instances,
             latency,
+            availability,
         });
     } catch (err) {
         console.log('Failed to generate Dashboard', err);
