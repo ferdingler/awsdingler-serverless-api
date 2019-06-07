@@ -1,9 +1,10 @@
-
 version: 0.2
 # Buildspec Reference Doc: https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec-ref-syntax
 
 phases:
   install:
+    runtime-versions:
+      nodejs: 10
     commands:
     # Use Install phase to install packages or any pre-reqs you may need throughout the build (e.g. dev deps, security checks, etc.)
     # - echo "[Install phase]"
