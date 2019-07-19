@@ -6,7 +6,7 @@ const moment = require('moment');
 
 const s3Bucket = process.env['RESULTS_S3_BUCKET'];
 const spotTerminationsTable = process.env['SPOT_TERMINATIONS_TABLE'];
-const spotFleetId = process.env['SPOT_FLEET_ID'];
+const autoScalingGroupName = process.env['AUTO_SCALING_GROUP_NAME'];
 const uptimeRobotUrl = process.env['UPTIME_ROBOT_URL'];
 const uptimeRobotApiKey = process.env['UPTIME_ROBOT_API_KEY'];
 const uptimeRobotMonitorId = process.env['UPTIME_ROBOT_MONITOR_ID'];
@@ -29,7 +29,7 @@ exports.k8sDashboard = async () => {
     console.log('Environment variables');
     console.log('Snapshot', snapshot.toISOString());
     console.log('SpotTerminationsTable', spotTerminationsTable);
-    console.log('SpotFleetId', spotFleetId);
+    console.log('AutoScalingGroupName', autoScalingGroupName);
     console.log('UptimeRobotUrl', uptimeRobotUrl);
     console.log('UptimeRobotApiKey', uptimeRobotApiKey);
     console.log('UptimeRobotMonitorId', uptimeRobotMonitorId);
@@ -41,15 +41,15 @@ exports.k8sDashboard = async () => {
         console.log('Health=', healthResult);
 
         console.log('Calculating last spot termination');
-        const lastSpotTermination = await spot.lastTermination(spotTerminationsTable, spotFleetId);
+        const lastSpotTermination = await spot.lastTermination(spotTerminationsTable);
         console.log('LastSpotTermination=', lastSpotTermination);
 
         console.log('Calculating CPU utilization');
-        const cpuMetrics = await spot.cpuAverageUtilization(snapshot, spotFleetId);
+        const cpuMetrics = await spot.cpuAverageUtilization(snapshot, autoScalingGroupName);
         console.log('CpuMetrics count=', cpuMetrics.length);
 
         console.log('Listing Spot Instances');
-        const instances = await spot.listSpotInstances(spotFleetId);
+        const instances = await spot.listSpotInstances(autoScalingGroupName);
         console.log('Got instances=', instances);
 
         console.log('Getting latency from watchtower metrics');

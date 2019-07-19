@@ -3,23 +3,19 @@ const _ = require('lodash');
 
 const cloudWatch = new AWS.CloudWatch();
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
-const ec2 = new AWS.EC2();
+const autoScaling = new AWS.AutoScaling();
 
-exports.lastTermination = async (spotTerminationsTable, spotFleetId) => {
-    const terminations = await dynamoDb.query({
+exports.lastTermination = async (spotTerminationsTable) => {
+    const terminations = await dynamoDb.scan({
         TableName: spotTerminationsTable,
-        KeyConditionExpression: 'fleetId = :hkey',
-        ScanIndexForward: false,
-        ExpressionAttributeValues: {
-            ':hkey': spotFleetId,
-        }
     }).promise();
 
     if (_.isEmpty(terminations.Items)) {
         throw new Error('Nothing found on DynamoDB table');
     }
 
-    const lastItem = terminations.Items[0];
+    const sorted = _.sortBy(terminations.Items, (item) => new Date(item.timestamp));
+    const lastItem = _.last(sorted);
     return {
         ...lastItem,
         // don't want to expose these values publicly
@@ -28,17 +24,17 @@ exports.lastTermination = async (spotTerminationsTable, spotFleetId) => {
     };
 };
 
-exports.cpuAverageUtilization = async (snapshot, spotFleetId) => {
+exports.cpuAverageUtilization = async (snapshot, autoScalingGroupName) => {
     const cpuMetrics = await cloudWatch.getMetricStatistics({
         EndTime: snapshot.toISOString(),
         StartTime: snapshot.subtract(12, 'hour').toISOString(),
         MetricName: 'CPUUtilization',
-        Namespace: 'AWS/EC2Spot',
+        Namespace: 'AWS/EC2',
         Period: 300,
         Dimensions: [
             {
-                Name: 'FleetRequestId',
-                Value: spotFleetId
+                Name: 'AutoScalingGroupName',
+                Value: autoScalingGroupName
             },
         ],
         Statistics: [
@@ -50,15 +46,16 @@ exports.cpuAverageUtilization = async (snapshot, spotFleetId) => {
     return cpuMetrics.Datapoints;
 };
 
-exports.listSpotInstances = async (spotFleetId) => {
-    const instances = await ec2.describeSpotFleetInstances({
-        SpotFleetRequestId: spotFleetId,
+exports.listSpotInstances = async (autoScalingGroupName) => {
+    const asgGroups = await autoScaling.describeAutoScalingGroups({
+        AutoScalingGroupNames: [autoScalingGroupName],
     }).promise();
 
-    return instances.ActiveInstances.map(instance => {
+    const group = _.first(asgGroups.AutoScalingGroups);
+    return group.Instances.map(instance => {
         return {
-            InstanceType: instance.InstanceType,
-            InstanceHealth: instance.InstanceHealth,
+            InstanceType: instance.InstanceId,
+            InstanceHealth: instance.LifecycleState,
             InstanceId: instance.InstanceId.substring(0, 8)
         }
     });
