@@ -8,6 +8,7 @@ phases:
     commands:
     # Use Install phase to install packages or any pre-reqs you may need throughout the build (e.g. dev deps, security checks, etc.)
       - echo "Install phase"
+      - sam --version
       - cd api
       - npm install
       - cd ..
