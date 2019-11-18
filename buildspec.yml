@@ -7,15 +7,22 @@ phases:
       nodejs: 10
     commands:
     # Use Install phase to install packages or any pre-reqs you may need throughout the build (e.g. dev deps, security checks, etc.)
-     - echo "Install phase"
-     - cd api
-     - npm install
-     - cd ..
+    #  - echo "Install phase"
+    #  - cd api
+    #  - npm install
+    #  - cd ..
+    #  - cd integtests
+    #  - npm install
   pre_build:
     commands:
     # Use Pre-Build phase to run tests, install any code deps or any other customization before build
       - echo "Pre-Build phase"
-      - sam build
+      - echo "Running unit tests"
+      - cd api
+      - npm run test
+      - cd ..
+      - echo "Validating SAM template"
+      - sam validate
   build:
     commands:
       # Use Build phase to build your artifacts (compile, package, etc.)

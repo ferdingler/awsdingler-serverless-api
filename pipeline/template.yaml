@@ -226,7 +226,7 @@ Resources:
                 Provider: Lambda
                 Version: '1'
               Configuration:
-                FunctionName: "awsdingler-api-HelloIntegrationTests"
+                FunctionName: "awsdingler-serverless-api-HelloIntegrationTests-K5S09M8KL10N"
               RunOrder: 3
           
         - Name: Prod
@@ -298,6 +298,7 @@ Resources:
                   - "s3:GetBucketPolicy"
                 Resource:
                   - !Sub arn:${AWS::Partition}:s3:::${Artifacts}
+        
         - PolicyName: codebuild-access
           PolicyDocument:
             Version: "2012-10-17"
@@ -309,6 +310,16 @@ Resources:
                 Resource:
                   - !GetAtt BuildProject.Arn
         
+        - PolicyName: lambda-invoke
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource:
+                  - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${DeployStackName}-*
+
         - PolicyName: deploy-cloudformation-access
           PolicyDocument:
             Version: "2012-10-17"
