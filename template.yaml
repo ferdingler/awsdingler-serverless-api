@@ -25,6 +25,11 @@ Resources:
       Runtime: nodejs8.10
       Layers:
         - !Ref AlgorithmsLayer
+      AutoPublishAlias: live
+      DeploymentPreference:
+          Type: Canary10Percent5Minutes
+          Alarms:
+            - !Ref HelloCanaryErrorsAlarm
       Events:
         Hello:
           Type: Api
@@ -32,6 +37,25 @@ Resources:
             RestApiId: !Ref ServerlessApi
             Path: /hello
             Method: get
+
+  HelloCanaryErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Lambda function canary errors
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 2
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: 0
+      Dimensions:
+        - Name: Resource
+          Value: !Sub "${HelloFunction}:live"
+        - Name: FunctionName
+          Value: !Ref HelloFunction
+        - Name: ExecutedVersion
+          Value: !GetAtt HelloFunction.Version.Version
 
   KubernetesDashboard:
     Type: AWS::Serverless::Function

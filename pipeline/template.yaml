@@ -210,6 +210,37 @@ Resources:
                 StackName: !Ref DeployStackName
                 ChangeSetName: !Sub a-${DeployStackName}-Deploy
               RunOrder: 2
+          
+          - Name: Prod
+          Actions:
+            - Name: CreateChangeSet
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              InputArtifacts:
+                - Name: BuildArtifact
+              Configuration:
+                ActionMode: CHANGE_SET_REPLACE
+                Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
+                ParameterOverrides: !Ref DeployParameterOverrides
+                RoleArn: !GetAtt DeploymentRole.Arn
+                StackName: !Sub ${DeployStackName}-prod
+                TemplatePath: "BuildArtifact::packaged.yaml"
+                ChangeSetName: !Sub a-${DeployStackName}-prod-Deploy
+              RunOrder: 1
+            - Name: ExecuteChangeSet
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              Configuration:
+                ActionMode: CHANGE_SET_EXECUTE
+                StackName: !Sub ${DeployStackName}-prod
+                ChangeSetName: !Sub a-${DeployStackName}-prod-Deploy
+              RunOrder: 3
   PipelineRole:
     Type: AWS::IAM::Role
     Properties:

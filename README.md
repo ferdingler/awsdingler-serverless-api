@@ -1,3 +1,3 @@
-# sam-app
+# awsdingler-serverless-api
 
-Not much here
+Backend API for www.awsdingler.com
