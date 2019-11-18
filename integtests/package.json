@@ -1,0 +1,13 @@
+{
+    "name": "awsdingler-serverless-api-integtests",
+    "version": "1.0.0",
+    "description": "Integration tests for awsdingler-serverless-api",
+    "main": "hello.js",
+    "repository": "",
+    "author": "fdingler",
+    "license": "MIT",
+    "dependencies": {
+      "axios": "^0.18.1"
+    }
+  }
+  
