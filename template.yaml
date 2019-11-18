@@ -66,6 +66,15 @@ Resources:
       Environment:
         Variables:
           HELLO_LAMBDA_ENDPOINT: !Sub "https://${ServerlessApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - codepipeline:PutJobSuccessResult
+                - codepipeline:PutJobFailureResult
+              Resource: "*"
+
 
   KubernetesDashboard:
     Type: AWS::Serverless::Function
