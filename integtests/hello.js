@@ -1,5 +1,5 @@
 const axios = require('axios');
-const aws = require('aws-sdk');
+const AWS = require('aws-sdk');
 const helloLambdaEndpoint = process.env['HELLO_LAMBDA_ENDPOINT'];
 
 exports.handler = async (event) => {
