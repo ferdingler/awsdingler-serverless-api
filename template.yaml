@@ -17,7 +17,7 @@ Parameters:
     Type: String
 
 Resources:
-  HelloFunction:
+  HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: api/
@@ -51,11 +51,11 @@ Resources:
       Threshold: 0
       Dimensions:
         - Name: Resource
-          Value: !Sub "${HelloFunction}:live"
+          Value: !Sub "${HelloWorldFunction}:live"
         - Name: FunctionName
-          Value: !Ref HelloFunction
+          Value: !Ref HelloWorldFunction
         - Name: ExecutedVersion
-          Value: !GetAtt HelloFunction.Version.Version
+          Value: !GetAtt HelloWorldFunction.Version.Version
 
   HelloIntegrationTests:
     Type: AWS::Serverless::Function
@@ -197,7 +197,7 @@ Resources:
               responses: {}
               x-amazon-apigateway-integration:
                 uri: 
-                  Fn::Sub: "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/${HelloFunction.Arn}/invocations"
+                  Fn::Sub: "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/${HelloWorldFunction.Arn}/invocations"
                 passthroughBehavior: "when_no_match"
                 httpMethod: "POST"
                 type: "aws_proxy"
