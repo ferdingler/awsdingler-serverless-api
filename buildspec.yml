@@ -22,8 +22,6 @@ phases:
       - cd api
       - npm run test
       - cd ..
-      - echo "Validating SAM template"
-      - sam validate
   build:
     commands:
       # Use Build phase to build your artifacts (compile, package, etc.)
