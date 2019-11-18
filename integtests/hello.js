@@ -5,7 +5,7 @@ exports.handler = async (event) => {
     console.log('Event=', event);
     try {
         const ret = await axios(helloLambdaEndpoint);
-        console.log('Successful response', ret.data.trim());
+        console.log('Successful response', ret);
         return true;
     } catch (err) {
         console.log('Hello Lambda failed', err);
