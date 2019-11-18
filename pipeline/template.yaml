@@ -12,6 +12,10 @@ Metadata:
           - SourceCodeProvider
           - CodeCommitRepoName
           - CodeCommitBranch
+          - GitHubOAuthToken
+          - GitHubOwner
+          - GitHubRepo
+          - GitHubBranch
       - 
         Label: 
           default: "Build Configuration"
@@ -23,6 +27,7 @@ Metadata:
           default: "Deploy Configuration"
         Parameters: 
           - DeployStackName
+          - DeployStackNameProd
           - DeployParameterOverrides
 
 Outputs:
@@ -72,6 +77,10 @@ Parameters:
     Default: '{}'
   DeployStackName:
     Description: The stack name for the deploy stage
+    Type: String
+    Default: ''
+  DeployStackNameProd:
+    Description: The stack name for the deploy stage in prod environment
     Type: String
     Default: ''
   GitHubOAuthToken:
@@ -210,9 +219,25 @@ Resources:
                 StackName: !Ref DeployStackName
                 ChangeSetName: !Sub a-${DeployStackName}-Deploy
               RunOrder: 2
+            - Name: IntegrationTests
+              ActionTypeId:
+                Category: Invoke
+                Owner: AWS
+                Provider: Lambda
+                Version: '1'
+              Configuration:
+                FunctionName: "awsdingler-api-HelloIntegrationTests"
+              RunOrder: 3
           
-          - Name: Prod
+        - Name: Prod
           Actions:
+            - Name: ApprovalGate
+              ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Provider: Manual
+                Version: '1'
+              RunOrder: 1
             - Name: CreateChangeSet
               ActionTypeId:
                 Category: Deploy
@@ -226,10 +251,10 @@ Resources:
                 Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
                 ParameterOverrides: !Ref DeployParameterOverrides
                 RoleArn: !GetAtt DeploymentRole.Arn
-                StackName: !Sub ${DeployStackName}-prod
+                StackName: !Ref DeployStackNameProd
                 TemplatePath: "BuildArtifact::packaged.yaml"
-                ChangeSetName: !Sub a-${DeployStackName}-prod-Deploy
-              RunOrder: 1
+                ChangeSetName: !Sub a-${DeployStackNameProd}-prod-Deploy
+              RunOrder: 2
             - Name: ExecuteChangeSet
               ActionTypeId:
                 Category: Deploy
@@ -238,8 +263,8 @@ Resources:
                 Version: '1'
               Configuration:
                 ActionMode: CHANGE_SET_EXECUTE
-                StackName: !Sub ${DeployStackName}-prod
-                ChangeSetName: !Sub a-${DeployStackName}-prod-Deploy
+                StackName: !Ref DeployStackNameProd
+                ChangeSetName: !Sub a-${DeployStackNameProd}-prod-Deploy
               RunOrder: 3
   PipelineRole:
     Type: AWS::IAM::Role
@@ -296,6 +321,7 @@ Resources:
                   - "cloudformation:DescribeChangeSet"
                 Resource:
                   - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${DeployStackName}/*
+                  - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${DeployStackNameProd}/*
 
         - PolicyName: deploy-iam-access
           PolicyDocument:

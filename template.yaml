@@ -57,6 +57,16 @@ Resources:
         - Name: ExecutedVersion
           Value: !GetAtt HelloFunction.Version.Version
 
+  HelloIntegrationTests:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: integtests/
+      Handler: hello.handler
+      Runtime: nodejs8.10
+      Environment:
+        Variables:
+          HELLO_LAMBDA_ENDPOINT: !Sub "https://${ServerlessApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+
   KubernetesDashboard:
     Type: AWS::Serverless::Function
     Properties:
