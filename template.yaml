@@ -197,7 +197,7 @@ Resources:
               responses: {}
               x-amazon-apigateway-integration:
                 uri: 
-                  Fn::Sub: "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/${HelloWorldFunction.Arn}/invocations"
+                  Fn::Sub: "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/${HelloWorldFunction.Arn}:live/invocations"
                 passthroughBehavior: "when_no_match"
                 httpMethod: "POST"
                 type: "aws_proxy"
