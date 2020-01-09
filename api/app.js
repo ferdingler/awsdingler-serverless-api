@@ -13,7 +13,7 @@ exports.hello = async (event, context) => {
     try {
         const ret = await axios(url);
         response = buildResponse(200, {
-            message: 'Today is Friday, November 22nd, 2019',
+            message: 'Hello this is Fernando Dingler',
             location: ret.data.trim(),
         });
     } catch (err) {
