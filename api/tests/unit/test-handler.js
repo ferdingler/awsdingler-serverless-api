@@ -17,7 +17,7 @@ describe('Tests index', function () {
         let response = JSON.parse(result.body);
 
         expect(response).to.be.an('object');
-        expect(response.message).to.be.equal("Hello this is Fernando Dingler");
+        expect(response.message).to.be.equal("Hello World");
         expect(response.location).to.be.an("string");
     });
 });
