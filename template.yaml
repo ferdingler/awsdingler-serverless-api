@@ -27,8 +27,8 @@ Resources:
   HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/handlers/
-      Handler: hello.handler
+      CodeUri: api/
+      Handler: app.hello
       Runtime: nodejs8.10
       Layers:
         - !Ref AlgorithmsLayer

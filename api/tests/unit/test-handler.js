@@ -17,7 +17,7 @@ describe('Tests index', function () {
         let response = JSON.parse(result.body);
 
         expect(response).to.be.an('object');
-        expect(response.message).to.be.equal("Today is Friday, November 22nd, 2019");
+        expect(response.message).to.be.equal("Hello World");
         expect(response.location).to.be.an("string");
     });
 });

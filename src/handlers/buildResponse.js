@@ -1,4 +1,4 @@
-const buildResponse = (statusCode, body) => {
+exports.buildResponse = (statusCode, body) => {
     return {
         'statusCode': statusCode,
         'body': JSON.stringify(body),
@@ -7,5 +7,3 @@ const buildResponse = (statusCode, body) => {
         },
     };
 };
-
-exports.default = buildResponse;
