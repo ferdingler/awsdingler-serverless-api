@@ -28,7 +28,8 @@ Metadata:
         Parameters: 
           - DeployStackName
           - DeployStackNameProd
-          - DeployParameterOverrides
+          - DeployParameterOverridesDev
+          - DeployParameterOverridesProd
 
 Outputs:
   ArtifactsBucketArn:
@@ -71,10 +72,14 @@ Parameters:
     Type: String
     Description: CodeCommit repository branch name, only specify if you chose CodeCommit in SourceCodeProvider.
     Default: master
-  DeployParameterOverrides:
-    Description: Parameter overrides for the deploy stage
+  DeployParameterOverridesDev:
+    Description: Parameter overrides for the dev deploy stage
     Type: String
     Default: '{}'
+  DeployParameterOverridesProd:
+      Description: Parameter overrides for the prod deploy stage
+      Type: String
+      Default: '{}'
   DeployStackName:
     Description: The stack name for the deploy stage
     Type: String
@@ -202,7 +207,7 @@ Resources:
               Configuration:
                 ActionMode: CHANGE_SET_REPLACE
                 Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
-                ParameterOverrides: !Ref DeployParameterOverrides
+                ParameterOverrides: !Ref DeployParameterOverridesDev
                 RoleArn: !GetAtt DeploymentRole.Arn
                 StackName: !Ref DeployStackName
                 TemplatePath: "BuildArtifact::packaged.yaml"
@@ -249,7 +254,7 @@ Resources:
               Configuration:
                 ActionMode: CHANGE_SET_REPLACE
                 Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
-                ParameterOverrides: !Ref DeployParameterOverrides
+                ParameterOverrides: !Ref DeployParameterOverridesProd
                 RoleArn: !GetAtt DeploymentRole.Arn
                 StackName: !Ref DeployStackNameProd
                 TemplatePath: "BuildArtifact::packaged.yaml"
