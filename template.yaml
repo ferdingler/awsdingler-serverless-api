@@ -22,7 +22,7 @@ Resources:
     Properties:
       CodeUri: api/
       Handler: app.hello
-      Runtime: nodejs8.10
+      Runtime: nodejs10.x
       Layers:
         - !Ref AlgorithmsLayer
       AutoPublishAlias: live
@@ -62,7 +62,7 @@ Resources:
     Properties:
       CodeUri: integtests/
       Handler: hello.handler
-      Runtime: nodejs8.10
+      Runtime: nodejs10.x
       Environment:
         Variables:
           HELLO_LAMBDA_ENDPOINT: !Sub "https://${ServerlessApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
@@ -80,7 +80,7 @@ Resources:
     Properties:
       CodeUri: api/
       Handler: cron.k8sDashboard
-      Runtime: nodejs8.10
+      Runtime: nodejs10.x
       Timeout: 300
       MemorySize: 512
       Environment:
@@ -115,8 +115,7 @@ Resources:
       Description: Reusable algorithmic functions
       ContentUri: layers/nodejs/
       CompatibleRuntimes:
-        - nodejs6.10
-        - nodejs8.10
+        - nodejs10.x
       LicenseInfo: 'MIT-0'
 
   ServerlessApi:
