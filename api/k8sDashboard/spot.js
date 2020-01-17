@@ -2,35 +2,16 @@ const AWS = require('aws-sdk');
 const _ = require('lodash');
 
 const cloudWatch = new AWS.CloudWatch();
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const autoScaling = new AWS.AutoScaling();
-
-exports.lastTermination = async (spotTerminationsTable) => {
-    const terminations = await dynamoDb.scan({
-        TableName: spotTerminationsTable,
-    }).promise();
-
-    if (_.isEmpty(terminations.Items)) {
-        throw new Error('Nothing found on DynamoDB table');
-    }
-
-    const sorted = _.sortBy(terminations.Items, (item) => new Date(item.timestamp));
-    const lastItem = _.last(sorted);
-    return {
-        ...lastItem,
-        // don't want to expose these values publicly
-        instanceId: lastItem.instanceId.substring(0, 8),
-        fleetId: lastItem.fleetId.substring(0, 10),
-    };
-};
+const ec2 = new AWS.EC2();
 
 exports.cpuAverageUtilization = async (snapshot, autoScalingGroupName) => {
     const cpuMetrics = await cloudWatch.getMetricStatistics({
         EndTime: snapshot.toISOString(),
-        StartTime: snapshot.subtract(12, 'hour').toISOString(),
+        StartTime: snapshot.subtract(7, 'days').toISOString(),
         MetricName: 'CPUUtilization',
         Namespace: 'AWS/EC2',
-        Period: 300,
+        Period: 3600,
         Dimensions: [
             {
                 Name: 'AutoScalingGroupName',
@@ -52,11 +33,17 @@ exports.listSpotInstances = async (autoScalingGroupName) => {
     }).promise();
 
     const group = _.first(asgGroups.AutoScalingGroups);
-    return group.Instances.map(instance => {
+    const instanceIds = group.Instances.map(instance => instance.InstanceId);
+    const instances = await ec2.describeInstances({ InstanceIds: instanceIds }).promise();
+
+    return instances.map(instance => {
         return {
             InstanceType: instance.InstanceId,
             InstanceHealth: instance.LifecycleState,
-            InstanceId: instance.InstanceId.substring(0, 8)
+            InstanceId: instance.InstanceId.substring(0, 8),
+            LaunchTime: instance.LaunchTime,
+            AvailabilityZone: instance.Placement.AvailabilityZone,
+            Status: instance.State.Name,
         }
     });
 };

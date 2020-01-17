@@ -26,7 +26,7 @@ Metadata:
         Label: 
           default: "Deploy Configuration"
         Parameters: 
-          - DeployStackName
+          - DeployStackNameDev
           - DeployStackNameProd
           - DeployParameterOverridesDev
           - DeployParameterOverridesProd
@@ -80,12 +80,12 @@ Parameters:
       Description: Parameter overrides for the prod deploy stage
       Type: String
       Default: '{}'
-  DeployStackName:
-    Description: The stack name for the deploy stage
+  DeployStackNameDev:
+    Description: The stack name for dev environment
     Type: String
     Default: ''
   DeployStackNameProd:
-    Description: The stack name for the deploy stage in prod environment
+    Description: The stack name for prod environment
     Type: String
     Default: ''
   GitHubOAuthToken:
@@ -209,9 +209,9 @@ Resources:
                 Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
                 ParameterOverrides: !Ref DeployParameterOverridesDev
                 RoleArn: !GetAtt DeploymentRole.Arn
-                StackName: !Ref DeployStackName
+                StackName: !Ref DeployStackNameDev
                 TemplatePath: "BuildArtifact::packaged.yaml"
-                ChangeSetName: !Sub a-${DeployStackName}-Deploy
+                ChangeSetName: !Sub a-${DeployStackNameDev}-Deploy
               RunOrder: 1
             - Name: ExecuteChangeSet
               ActionTypeId:
@@ -221,8 +221,8 @@ Resources:
                 Version: '1'
               Configuration:
                 ActionMode: CHANGE_SET_EXECUTE
-                StackName: !Ref DeployStackName
-                ChangeSetName: !Sub a-${DeployStackName}-Deploy
+                StackName: !Ref DeployStackNameDev
+                ChangeSetName: !Sub a-${DeployStackNameDev}-Deploy
               RunOrder: 2
             - Name: IntegrationTests
               ActionTypeId:
@@ -323,7 +323,8 @@ Resources:
                 Action:
                   - "lambda:InvokeFunction"
                 Resource:
-                  - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${DeployStackName}-*
+                  - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${DeployStackNameDev}-*
+                  - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${DeployStackNameProd}-*
 
         - PolicyName: deploy-cloudformation-access
           PolicyDocument:
@@ -336,7 +337,7 @@ Resources:
                   - "cloudformation:ExecuteChangeSet"
                   - "cloudformation:DescribeChangeSet"
                 Resource:
-                  - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${DeployStackName}/*
+                  - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${DeployStackNameDev}/*
                   - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${DeployStackNameProd}/*
 
         - PolicyName: deploy-iam-access

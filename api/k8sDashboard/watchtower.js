@@ -41,29 +41,24 @@ exports.latencies = async (snapshot) => {
     };
 };
 
-exports.calculateAvailability = async (snapshot, uptimeRobotUrl, uptimeRobotApiKey, uptimeRobotMonitorId) => {
-    try {
-        const uptimeRobotEndpoint = uptimeRobotUrl.concat('/getMonitors');
-        const response = await axios.post(uptimeRobotEndpoint, {
-            api_key: uptimeRobotApiKey,
-            monitors: uptimeRobotMonitorId,
-            all_time_uptime_ratio: 1
-        });
+exports.pingStatusCodes = async (snapshot) => {
+    const statusCodeMetrics = await cloudWatch.getMetricStatistics({
+        EndTime: snapshot.toISOString(),
+        StartTime: snapshot.subtract(7, 'days').toISOString(),
+        MetricName: 'status',
+        Namespace: 'Watchtower',
+        Period: 3600,
+        Dimensions: [
+            {
+                Name: 'awsdingler-k8s-nlb',
+                Value: 'HTTP Status'
+            },
+        ],
+        Statistics: [
+            'Maximum'
+        ],
+    }).promise();
 
-        console.log('Got response from uptime robot = ', JSON.stringify(response.data));
-        const monitor = response.data.monitors[0];
-        return {
-            monitorSinceDate: monitor['create_datetime'],
-            uptimeRatio: parseFloat(monitor['all_time_uptime_ratio']),
-            monitorIntervalSeconds: monitor['interval'],
-        };
-
-    } catch (err) {
-        console.log('Call to uptime robot failed with error =', err);
-        return {
-            monitorSinceDate: 0,
-            uptimeRatio: 0,
-            monitorIntervalSeconds: 0,
-        };
-    }
+    console.log('Got http status code metrics', JSON.stringify(statusCodeMetrics));
+    return statusCodeMetrics.Datapoints;
 };

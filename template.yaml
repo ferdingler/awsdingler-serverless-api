@@ -12,13 +12,6 @@ Globals:
 Parameters:
   AutoScalingGroupName:
     Type: String
-  UptimeRobotUrl:
-    Type: String
-    Default: 'https://api.uptimerobot.com/v2'
-  UptimeRobotApiKey:
-    Type: String
-  UptimeRobotMonitorId:
-    Type: String
   Environment:
     Type: String
     Default: dev
@@ -94,9 +87,6 @@ Resources:
         Variables:
           AUTO_SCALING_GROUP_NAME: !Ref AutoScalingGroupName
           RESULTS_S3_BUCKET: !Ref KubernetesDashboardResultsBucket
-          UPTIME_ROBOT_URL: !Ref UptimeRobotUrl
-          UPTIME_ROBOT_API_KEY: !Ref UptimeRobotApiKey
-          UPTIME_ROBOT_MONITOR_ID: !Ref UptimeRobotMonitorId
       Policies:
         - AmazonS3FullAccess
         - CloudWatchFullAccess
