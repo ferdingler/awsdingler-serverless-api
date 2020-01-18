@@ -1,3 +1,7 @@
 # awsdingler-serverless-api
 
-Backend API for www.awsdingler.com
+### Run function locally
+
+```
+sam local invoke FUNCTION_NAME --env-vars env.json
+```

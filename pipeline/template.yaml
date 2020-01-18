@@ -105,6 +105,9 @@ Parameters:
     Description: GitHub repo branch name. It defaults to master if not specified.
     Type: String
     Default: master
+  DevIntegrationTestsLambdaArn:
+    Type: String
+    Description: Lambda ARN that runs integration tests against dev environment
 
 Conditions:
   UseCodeCommit:
@@ -231,7 +234,7 @@ Resources:
                 Provider: Lambda
                 Version: '1'
               Configuration:
-                FunctionName: "awsdingler-serverless-api-HelloIntegrationTests-K5S09M8KL10N"
+                FunctionName: "awsdingler-serverless-api-de-HelloIntegrationTests-1QF1DKGD1HEXQ"
               RunOrder: 3
           
         - Name: Prod
@@ -323,8 +326,8 @@ Resources:
                 Action:
                   - "lambda:InvokeFunction"
                 Resource:
-                  - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${DeployStackNameDev}-*
-                  - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${DeployStackNameProd}-*
+                  - !Ref DevIntegrationTestsLambdaArn
+                  #- !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${DeployStackNameProd}-*
 
         - PolicyName: deploy-cloudformation-access
           PolicyDocument:

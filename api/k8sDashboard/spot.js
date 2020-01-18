@@ -32,11 +32,15 @@ exports.listSpotInstances = async (autoScalingGroupName) => {
         AutoScalingGroupNames: [autoScalingGroupName],
     }).promise();
 
+    console.log('AutoScaling Groups=', JSON.stringify(asgGroups));
     const group = _.first(asgGroups.AutoScalingGroups);
     const instanceIds = group.Instances.map(instance => instance.InstanceId);
+    console.log('InstanceIds=', instanceIds);
     const instances = await ec2.describeInstances({ InstanceIds: instanceIds }).promise();
+    console.log('Instances=', instances);
+    const reservation = instances.Reservations[0];    
 
-    return instances.map(instance => {
+    return reservation.Instances.map(instance => {
         return {
             InstanceType: instance.InstanceId,
             InstanceHealth: instance.LifecycleState,
