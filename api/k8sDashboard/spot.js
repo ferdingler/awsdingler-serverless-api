@@ -36,18 +36,27 @@ exports.listSpotInstances = async (autoScalingGroupName) => {
     const group = _.first(asgGroups.AutoScalingGroups);
     const instanceIds = group.Instances.map(instance => instance.InstanceId);
     console.log('InstanceIds=', instanceIds);
-    const instances = await ec2.describeInstances({ InstanceIds: instanceIds }).promise();
-    console.log('Instances=', instances);
-    const reservation = instances.Reservations[0];    
+    const result = await ec2.describeInstances({ InstanceIds: instanceIds }).promise();
+    console.log('Describe instances=', result);
 
-    return reservation.Instances.map(instance => {
-        return {
-            InstanceType: instance.InstanceId,
-            InstanceHealth: instance.LifecycleState,
-            InstanceId: instance.InstanceId.substring(0, 8),
-            LaunchTime: instance.LaunchTime,
-            AvailabilityZone: instance.Placement.AvailabilityZone,
-            Status: instance.State.Name,
-        }
+    if (!result.Reservations) {
+        console.log('No instances found, returning empty');
+        return [];
+    }
+
+    const instances = [];
+    result.Reservations.forEach(reservation => {
+        reservation.Instances.forEach(instance => {
+            instances.push({
+                InstanceType: instance.InstanceId,
+                InstanceHealth: instance.LifecycleState,
+                InstanceId: instance.InstanceId.substring(0, 8),
+                LaunchTime: instance.LaunchTime,
+                AvailabilityZone: instance.Placement.AvailabilityZone,
+                Status: instance.State.Name,
+            });
+        });
     });
+
+    return instances;
 };

@@ -48,13 +48,20 @@ exports.k8sDashboard = async () => {
         const pingStatusCodes = await watchTower.pingStatusCodes(snapshot);
         console.log('Got availability', pingStatusCodes);
 
-        return exportToS3({
+        return {
             health: healthResult,
             cpuMetrics,
             instances,
             latency,
             pingStatusCodes,
-        });
+        };
+        // return exportToS3({
+        //     health: healthResult,
+        //     cpuMetrics,
+        //     instances,
+        //     latency,
+        //     pingStatusCodes,
+        // });
     } catch (err) {
         console.log('Failed to generate Dashboard', err);
         throw err;
