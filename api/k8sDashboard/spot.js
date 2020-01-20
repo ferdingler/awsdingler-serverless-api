@@ -49,8 +49,7 @@ exports.listSpotInstances = async (autoScalingGroupName) => {
         reservation.Instances.forEach(instance => {
             instances.push({
                 InstanceType: instance.InstanceType,
-                InstanceHealth: instance.LifecycleState,
-                InstanceId: instance.InstanceId.substring(0, 8),
+                InstanceId: instance.InstanceId.substring(0, 10),
                 LaunchTime: instance.LaunchTime,
                 AvailabilityZone: instance.Placement.AvailabilityZone,
                 Status: instance.State.Name,
