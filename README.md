@@ -2,6 +2,10 @@
 
 ### Run function locally
 
+Example:
+
 ```
-sam local invoke FUNCTION_NAME --env-vars env.json
+sam local invoke KubernetesDashboard \
+--event events/hello.json \
+--env-vars env.json
 ```

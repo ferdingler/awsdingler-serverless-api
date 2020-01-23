@@ -1,9 +1,9 @@
 const hello = require('../hello');
+const k8s = require('../k8s');
 
 exports.helloWorld = async (event) => {
     console.log('Event=', event);
     try {
-        console.log(hello);
         const msg = await hello.sayHello();
         response = buildResponse(200, msg);
     } catch (err) {
@@ -11,6 +11,16 @@ exports.helloWorld = async (event) => {
         response = buildResponse(500, err);
     }
     return response;
+};
+
+exports.k8sDashboard = async (event) => {
+    console.log('Event=', event);
+    try {
+        await k8s.generateDashboardToS3();
+    } catch (err) {
+        console.log('Got error=', err);
+    }
+    return true;
 };
 
 const buildResponse = (statusCode, body) => {
