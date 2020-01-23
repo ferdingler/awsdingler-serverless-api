@@ -20,10 +20,10 @@ phases:
       - cd ..
   pre_build:
     commands:
-    # Use Pre-Build phase to run tests, install any code deps or any other customization before build
+      # Use Pre-Build phase to run tests, install any code deps or any other customization before build
       - echo "Pre-Build phase"
       - echo "Running unit tests"
-      - cd api
+      - cd src
       - npm run test
       - cd ..
   build:
