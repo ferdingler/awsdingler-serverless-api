@@ -31,7 +31,7 @@ Resources:
       Runtime: nodejs10.x
       Timeout: 10
       Layers:
-        - !Ref AlgorithmsLayer
+        - !Ref CommonLayer
       DeploymentPreference:
         Type: !If [IsProdEnvironment, Canary10Percent5Minutes, AllAtOnce]
         Alarms:
@@ -115,12 +115,12 @@ Resources:
             AllowedOrigins: ['*']
             Id: myCORSRuleId1
 
-  AlgorithmsLayer:
+  CommonLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: AwsDinglerAlgorithms
-      Description: Reusable algorithmic functions
-      ContentUri: layers/nodejs/
+      LayerName: awsdingler-common
+      Description: Reusable utility functions
+      ContentUri: src/lambda/layers/
       CompatibleRuntimes:
         - nodejs10.x
       LicenseInfo: 'MIT-0'
