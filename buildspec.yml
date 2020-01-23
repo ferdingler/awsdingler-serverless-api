@@ -15,6 +15,9 @@ phases:
       - cd integtests
       - npm install
       - cd ..
+      - cd src
+      - npm install
+      - cd ..
   pre_build:
     commands:
     # Use Pre-Build phase to run tests, install any code deps or any other customization before build
