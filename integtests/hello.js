@@ -17,6 +17,12 @@ exports.handler = async (event) => {
         return codepipeline.putJobSuccessResult({ jobId: codePipelineJob.id }).promise();
     } catch (err) {
         console.log('Hello Lambda failed', err);
-        return codepipeline.putJobFailureResult({ jobId: codePipelineJob.id }).promise();
+        return codepipeline.putJobFailureResult({ 
+            jobId: codePipelineJob.id,
+            failureDetails: {
+                type: 'JobFailed',
+                message: err,
+            }
+        }).promise();
     }
 };
