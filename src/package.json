@@ -2,7 +2,7 @@
   "name": "awsdingler-serverless-api",
   "version": "1.0.0",
   "description": "Backend for awsdingler.com",
-  "main": "src/index.js",
+  "main": "lambda/handlers.js",
   "repository": "",
   "author": "SAM CLI",
   "license": "MIT",
