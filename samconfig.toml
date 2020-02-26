@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "awsdingler-serverless-api-local"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1om1ofsaczwkd"
+s3_prefix = "awsdingler-serverless-api-local"
+region = "us-west-2"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "AutoScalingGroupName=eksctl-awsdingler-k8s-nodegroup-nodegroup-1-NodeGroup-13PQNMASKPXWX Environment=local"
