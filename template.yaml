@@ -134,7 +134,7 @@ Resources:
         swagger: "2.0"
         info:
           version: "1.0"
-          title: "awsdingler-api"
+          title: !Sub "awsdingler-api-${Environment}"
         host: "api.awsdingler.com"
         basePath: "/v1"
         schemes:

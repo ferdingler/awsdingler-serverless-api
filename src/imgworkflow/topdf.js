@@ -28,7 +28,7 @@ exports.imageToPdf = async (state) => {
     // Upload pdf to s3
     console.log('Reading PDF from disk');
     // const pdf = fs.readFileSync(localPdf);
-    const pdf = fs.readFileSync(localImage);
+    // const pdf = fs.readFileSync(localImage);
     const s3KeyPdf = s3Key.concat('.pdf');
     console.log('Uploading to S3');
     await S3.upload({
