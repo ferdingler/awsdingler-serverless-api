@@ -5,6 +5,7 @@ Description: awsdingler-serverless-api
 Globals:
   Function:
     AutoPublishAlias: live
+    Tracing: Active
     Environment:
       Variables:
         ENV: !Ref Environment
@@ -135,7 +136,6 @@ Resources:
         info:
           version: "1.0"
           title: !Sub "awsdingler-api-${Environment}"
-        host: "api.awsdingler.com"
         basePath: "/v1"
         schemes:
           - "https"
@@ -152,28 +152,17 @@ Resources:
             x-amazon-apigateway-authorizer:
               type: cognito_user_pools
               providerARNs:
-                - Fn::Sub: "arn:aws:cognito-idp:us-west-2:${AWS::AccountId}:userpool/us-west-2_IccpkvFLy"
+                - Fn::Sub: "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/us-west-2_IccpkvFLy"
         paths:
           /hello:
             get:
               responses: {}
               x-amazon-apigateway-integration:
                 uri: 
-                  Fn::Sub: "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/${HelloWorldFunction.Arn}:live/invocations"
+                  Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${HelloWorldFunction.Arn}:live/invocations"
                 passthroughBehavior: "when_no_match"
                 httpMethod: "POST"
                 type: "aws_proxy"
-          /k8s/hello:
-            get:
-              responses: {}
-              x-amazon-apigateway-integration:
-                httpMethod: "GET"
-                type: "http_proxy"
-                uri: "http://a9a12520b4aa911e980ba02198db823a-ebc7c7512f5f4297.elb.us-west-2.amazonaws.com/"
-                passthroughBehavior: "when_no_match"
-                responses:
-                  default:
-                    statusCode: "200"
 
   # # # # # # # # # # # # # # # # #
   # Image processing state machine
