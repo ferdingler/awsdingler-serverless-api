@@ -11,11 +11,9 @@ export class CdkStack extends cdk.Stack {
 
     // The code that defines your stack goes here
     const artifactsBucket = new s3.Bucket(this, "ArtifactsBucket");
-    
-    // Get GitHub OAuth Token from environment variable
-    const githubToken = cdk.SecretValue.secretsManager("awsdingler-serverless-api-cicd", {
-      jsonField: 'github-oauth-token'
-    })
+
+    // Secrets Manager secret name for dynamic parameters (Check README)
+    const secretName = "awsdingler-serverless-api-cicd";
 
     // Pipeline creation starts
     const pipeline = new codepipeline.Pipeline(this, 'Pipeline', {
@@ -32,16 +30,18 @@ export class CdkStack extends cdk.Stack {
         new codepipeline_actions.GitHubSourceAction({
           actionName: 'GitHub',
           owner: 'ferdingler',
-          oauthToken: githubToken,
+          oauthToken: cdk.SecretValue.secretsManager(secretName, {
+            jsonField: 'github-oauth-token'
+          }),
           repo: 'awsdingler-serverless-api',
           output: sourceOutput,
         }),
       ],
     });
-    
+
     // Declare build output as artifacts
     const buildOutput = new codepipeline.Artifact();
-    
+
     // CodeBuild project
     const buildProject = new codebuild.PipelineProject(this, 'Build', {
       environment: {
@@ -54,7 +54,7 @@ export class CdkStack extends cdk.Stack {
         }
       }
     });
-    
+
     // Build stage
     pipeline.addStage({
       stageName: 'Build',
@@ -67,7 +67,7 @@ export class CdkStack extends cdk.Stack {
         }),
       ],
     });
-    
+
     // DEV stage
     pipeline.addStage({
       stageName: 'Dev',
@@ -78,7 +78,13 @@ export class CdkStack extends cdk.Stack {
           stackName: 'awsdingler-serverless-api-dev',
           adminPermissions: true,
           changeSetName: 'awsdingler-serverless-api-dev-changeset',
-          runOrder: 1
+          runOrder: 1,
+          parameterOverrides: {
+            'Environment': 'dev',
+            'AutoScalingGroupName': cdk.SecretValue.secretsManager(secretName, {
+              jsonField: 'k8s-asg-dev'
+            }),
+          }
         }),
         new codepipeline_actions.CloudFormationExecuteChangeSetAction({
           actionName: 'Deploy',
