@@ -25,7 +25,7 @@ export class CdkStack extends cdk.Stack {
     // Declare source code as an artifact
     const sourceOutput = new codepipeline.Artifact();
 
-    // Add source stage to pipeline
+    // Source stage
     pipeline.addStage({
       stageName: 'Source',
       actions: [
@@ -42,7 +42,7 @@ export class CdkStack extends cdk.Stack {
     // Declare build output as artifacts
     const buildOutput = new codepipeline.Artifact();
     
-    // Declare a new CodeBuild project
+    // CodeBuild project
     const buildProject = new codebuild.PipelineProject(this, 'Build', {
       environment: {
         buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_2,
@@ -55,7 +55,7 @@ export class CdkStack extends cdk.Stack {
       }
     });
     
-    // Add the build stage to our pipeline
+    // Build stage
     pipeline.addStage({
       stageName: 'Build',
       actions: [
@@ -68,26 +68,26 @@ export class CdkStack extends cdk.Stack {
       ],
     });
     
-    // Deploy stage
-    // pipeline.addStage({
-    //   stageName: 'Dev',
-    //   actions: [
-    //     new codepipeline_actions.CloudFormationCreateReplaceChangeSetAction({
-    //       actionName: 'CreateChangeSet',
-    //       templatePath: buildOutput.atPath("packaged.yaml"),
-    //       stackName: 'sam-app',
-    //       adminPermissions: true,
-    //       changeSetName: 'sam-app-dev-changeset',
-    //       runOrder: 1
-    //     }),
-    //     new codepipeline_actions.CloudFormationExecuteChangeSetAction({
-    //       actionName: 'Deploy',
-    //       stackName: 'sam-app',
-    //       changeSetName: 'sam-app-dev-changeset',
-    //       runOrder: 2
-    //     }),
-    //   ],
-    // });
+    // DEV stage
+    pipeline.addStage({
+      stageName: 'Dev',
+      actions: [
+        new codepipeline_actions.CloudFormationCreateReplaceChangeSetAction({
+          actionName: 'CreateChangeSet',
+          templatePath: buildOutput.atPath("packaged.yaml"),
+          stackName: 'awsdingler-serverless-api-dev',
+          adminPermissions: true,
+          changeSetName: 'awsdingler-serverless-api-dev-changeset',
+          runOrder: 1
+        }),
+        new codepipeline_actions.CloudFormationExecuteChangeSetAction({
+          actionName: 'Deploy',
+          stackName: 'awsdingler-serverless-api-dev',
+          changeSetName: 'awsdingler-serverless-api-dev-changeset',
+          runOrder: 2
+        }),
+      ],
+    });
     
   }
 }

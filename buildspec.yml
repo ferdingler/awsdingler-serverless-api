@@ -7,18 +7,20 @@ phases:
       nodejs: 10
     commands:
     # Use Install phase to install packages or any pre-reqs you may need throughout the build (e.g. dev deps, security checks, etc.)
-      - echo "Install phase"
+      - echo "Upgrading SAM CLI to latest version"
+      - pip3 install --upgrade aws-sam-cli
       - sam --version
+    # Installing project dependencies for integration tests
       - cd integtests
       - npm install
       - cd ..
+    # Installing project dependencies for main src
       - cd src
       - npm install
       - cd ..
   pre_build:
     commands:
       # Use Pre-Build phase to run tests, install any code deps or any other customization before build
-      - echo "Pre-Build phase"
       - echo "Running unit tests"
       - cd src
       - npm run test
@@ -28,17 +30,13 @@ phases:
       # Use Build phase to build your artifacts (compile, package, etc.)
       - echo "Starting SAM build"
       - sam build
-      # We package the SAM template and create `packaged.yaml` file that will be used in our pipeline for deployment
-      ## Here we separate Build from Deployment and segregate permissions for different steps
-      - echo "Starting SAM packaging `date` in `pwd`"
-      - echo $PACKAGE_BUCKET
-      - ls -al
-      - sam package --template-file template.yaml --s3-bucket $PACKAGE_BUCKET --output-template-file packaged.yaml
   post_build:
     commands:
       # Use Post Build for notifications, git tags and any further customization after build
-      # - echo "[Post-Build phase]"
-      - echo "SAM packaging completed on `date`"
+      - echo "Starting SAM packaging"
+      - echo $PACKAGE_BUCKET
+      - ls -al
+      - sam package --s3-bucket $PACKAGE_BUCKET --output-template-file packaged.yaml
 
 ##################################
 # Build Artifacts to be uploaded #
