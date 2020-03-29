@@ -4,6 +4,7 @@ import s3 = require('@aws-cdk/aws-s3');
 import codepipeline = require('@aws-cdk/aws-codepipeline');
 import codepipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
 import codebuild = require('@aws-cdk/aws-codebuild');
+import lambda = require('@aws-cdk/aws-lambda');
 
 export class CdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -19,6 +20,10 @@ export class CdkStack extends cdk.Stack {
     const pipeline = new codepipeline.Pipeline(this, 'Pipeline', {
       artifactBucket: artifactsBucket
     });
+
+    /**
+     * SOURCE STAGE
+     */
 
     // Declare source code as an artifact
     const sourceOutput = new codepipeline.Artifact();
@@ -39,10 +44,14 @@ export class CdkStack extends cdk.Stack {
       ],
     });
 
+    /**
+     * BUILD STAGE
+     */
+    
     // Declare build output as artifacts
     const buildOutput = new codepipeline.Artifact();
 
-    // CodeBuild project
+    // CodeBuild project definition
     const buildProject = new codebuild.PipelineProject(this, 'Build', {
       environment: {
         buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_2,
@@ -55,7 +64,6 @@ export class CdkStack extends cdk.Stack {
       }
     });
 
-    // Build stage
     pipeline.addStage({
       stageName: 'Build',
       actions: [
@@ -68,7 +76,9 @@ export class CdkStack extends cdk.Stack {
       ],
     });
 
-    // DEV stage
+    /**
+     * DEV STAGE
+     */
     pipeline.addStage({
       stageName: 'Dev',
       actions: [
@@ -92,6 +102,11 @@ export class CdkStack extends cdk.Stack {
           changeSetName: 'awsdingler-serverless-api-dev-changeset',
           runOrder: 2
         }),
+        new codepipeline_actions.LambdaInvokeAction({
+          actionName: 'IntegrationTests',
+          runOrder: 3,
+          lambda: null,
+        })
       ],
     });
     

@@ -314,3 +314,9 @@ Resources:
                             - dynamodb:*
                         Resource:
                             - !Sub arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ImageRecordsTable}
+
+Outputs:
+  IntegrationTestsLambda:
+    Value: !GetAtt HelloIntegrationTests.Arn
+    Export:
+      Name: !Sub "awsdingler-serverless-api-integ-tests-arn-${Environment}"
