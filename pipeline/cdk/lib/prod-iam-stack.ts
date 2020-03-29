@@ -1,15 +1,18 @@
 import * as cdk from '@aws-cdk/core';
 import iam = require('@aws-cdk/aws-iam');
+import params = require('../params.json');
 
 export class ProdIAMStack extends cdk.Stack {
     constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
       super(scope, id, props);
 
-      // Secrets Manager secret name for dynamic parameters (Check README)
-      const secretName = "awsdingler-serverless-api-cicd";
-      const devAccount = cdk.SecretValue.secretsManager(secretName, {
-        jsonField: 'dev-account-id'
-      });
+      /**
+     * Parameters
+     * Taken from local file `params.json`. Generally is better
+     * to take these parameters from ParameterStore or SecretsManager,
+     * but I am doing it this way for simplicity.
+     */
+      const devAccount = params["dev-account-id"];
 
       /**
        * IAM Role for CloudFormation
@@ -30,15 +33,35 @@ export class ProdIAMStack extends cdk.Stack {
        * so that it can pass the Cloudformation role defined above.
        */
       const crossAccountRole = new iam.Role(this, 'CrossAccountRole', {
-          assumedBy: new iam.AccountPrincipal(devAccount)
+          assumedBy: new iam.AccountPrincipal(devAccount),
       });
+
+      // Needs CloudFormation permissions
+      const cfnFullAccessPolicy = iam.ManagedPolicy.fromAwsManagedPolicyName("AWSCloudFormationFullAccess");
+      crossAccountRole.addManagedPolicy(cfnFullAccessPolicy);
+
+      // Needs permissions to pass the cloudFormationRole defined above
+      crossAccountRole.addToPolicy(new iam.PolicyStatement({
+          actions: ['iam:PassRole'],
+          resources: [cloudformationRole.roleArn]
+      }));
+
+      // Needs S3 permissions to access artifacts in the DEV account
+      crossAccountRole.addToPolicy(new iam.PolicyStatement({
+          actions: ['s3:*', 'kms:*'],
+          resources: ['*']
+      }));
 
       /**
        * Outputs
        */
       new cdk.CfnOutput(this, 'ProdCrossAccountRoleArn', {
           value: crossAccountRole.roleArn,
-      })
+      });
+
+      new cdk.CfnOutput(this, 'CloudFormationDeployRoleArn', {
+        value: cloudformationRole.roleArn,
+    })
 
     }
 }

@@ -22,6 +22,24 @@ export class PipelineStack extends cdk.Stack {
     const k8sASGDev = params["k8s-asg-dev"];
     const k8sASGProd = params["k8s-asg-prod"];
     const prodCrossAccountRoleArn = params["cross-account-prod-role-arn"];
+    const prodDeployerRoleArn = params["prod-deployer-role-arn"];
+
+    /**
+     * Production Roles
+     * IAM Roles in the production account, will be needed in the
+     * PROD stage of the pipeline.
+     */
+    const prodDeployerRole = iam.Role.fromRoleArn(this, 'ProdDeployerRole',
+      prodDeployerRoleArn, {
+        mutable: false
+      }
+    );
+
+    const prodCrossAccountRole = iam.Role.fromRoleArn(this, 'ProdCrossAccountRole',
+      prodCrossAccountRoleArn, {
+        mutable: false
+      }
+    );
 
     // S3 bucket where build artifacts will be stored
     // Needs to be encrypted with a CMK key because we need to share this
@@ -35,6 +53,17 @@ export class PipelineStack extends cdk.Stack {
         enableKeyRotation: true,
       }),
     });
+
+    // Add a bucket policy that grants production
+    // IAM roles access to the artifacts bucket.
+    artifactsBucket.addToResourcePolicy(new iam.PolicyStatement({
+      actions: ['s3:GetObject'],
+      resources: [artifactsBucket.arnForObjects("*")],
+      principals: [
+        prodDeployerRole.grantPrincipal,
+        prodCrossAccountRole.grantPrincipal
+      ]
+    }));
 
     // Pipeline creation starts
     const pipeline = new codepipeline.Pipeline(this, 'Pipeline', {
@@ -138,13 +167,6 @@ export class PipelineStack extends cdk.Stack {
     /**
      * PROD STAGE
      */
-    const prodRole = iam.Role.fromRoleArn(this,
-      'CrossAccountProdRole', 
-      prodCrossAccountRoleArn, {
-        mutable: false
-      }
-    );
-
     pipeline.addStage({
       stageName: 'Prod',
       actions: [
@@ -159,7 +181,8 @@ export class PipelineStack extends cdk.Stack {
            * Specifying a role in Prod is the key that allows
            * the deployment to happen in the production account.
            */
-          role: prodRole,
+          deploymentRole: prodDeployerRole,
+          role: prodCrossAccountRole,
           parameterOverrides: {
             'Environment': 'prod',
             'AutoScalingGroupName': k8sASGProd,
@@ -177,7 +200,7 @@ export class PipelineStack extends cdk.Stack {
           runOrder: 3,
           stackName: 'awsdingler-serverless-api-prod',
           changeSetName: 'awsdingler-serverless-api-prod-changeset',
-          role: prodRole,
+          role: prodCrossAccountRole,
         }),
       ],
     });

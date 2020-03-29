@@ -30,10 +30,13 @@ The pipeline takes dynamic values from file `params.json` with the following str
 
 ```
 {
-    "github-oauth-token": "123",
-    "k8s-asg-dev": "eksctl-awsdingler-k8s-nodegroup",
-    "k8s-asg-prod": "eksctl-awsdingler-k8s-nodegroup",
-    "cross-account-prod-role-arn": "arn:aws:iam::123:role/CrossAccountRole"
+    "github-oauth-token": "123456",
+    "k8s-asg-dev": "eksctl-awsdingler-k8s-nodegroup-bananas-1-15-NodeGroup-120RTWN80ZI2W",
+    "k8s-asg-prod": "eksctl-awsdingler-k8s-nodegroup-bananas-1-15-NodeGroup-120RTWN80ZI2W",
+    "cross-account-prod-role-arn": "arn:aws:iam::1234567890:role/CrossAccountRole",
+    "prod-deployer-role-arn": "arn:aws:iam::1234567890:role/CloudFormationDeployRole",
+    "dev-account-id": "987654321",
+    "prod-account-id": "123456789"
 }
 ```
 
