@@ -5,13 +5,24 @@ import codepipeline = require('@aws-cdk/aws-codepipeline');
 import codepipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
 import codebuild = require('@aws-cdk/aws-codebuild');
 import lambda = require('@aws-cdk/aws-lambda');
+import kms = require('@aws-cdk/aws-kms');
 
 export class CdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
-    const artifactsBucket = new s3.Bucket(this, "ArtifactsBucket");
+    // S3 bucket where build artifacts will be stored
+    // Needs to be encrypted with a CMK key because we need to share this
+    // key with the PROD account to be able to deploy to across accounts.
+    const artifactsBucket = new s3.Bucket(this, "ArtifactsBucket", {
+      encryption: s3.BucketEncryption.KMS,
+      encryptionKey: new kms.Key(this, 'KmsKey', {
+        alias: 'awsdingler-serverless-api-cicd-kms-key',
+        description: 'Key to deploy across accounts',
+        enabled: true,
+        enableKeyRotation: true,
+      }),
+    });
 
     // Secrets Manager secret name for dynamic parameters (Check README)
     const secretName = "awsdingler-serverless-api-cicd";
