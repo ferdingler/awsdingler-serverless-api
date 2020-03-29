@@ -1,5 +1,4 @@
 import * as cdk from '@aws-cdk/core';
-import sm = require("@aws-cdk/aws-secretsmanager");
 import s3 = require('@aws-cdk/aws-s3');
 import codepipeline = require('@aws-cdk/aws-codepipeline');
 import codepipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
@@ -7,7 +6,7 @@ import codebuild = require('@aws-cdk/aws-codebuild');
 import lambda = require('@aws-cdk/aws-lambda');
 import kms = require('@aws-cdk/aws-kms');
 
-export class CdkStack extends cdk.Stack {
+export class PipelineStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
