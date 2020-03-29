@@ -2,11 +2,11 @@
 
 SAM application that serves as backend for www.awsdingler.com. 
 
-### Create a personal stack
+## Create a personal stack
 
 Deployment config is found in `samconfig.toml`. This is to run `sam deploy` to create your own personal developer stack. Deployments to DEV and PROD are handled automatically by the pipeline. 
 
-### Run function locally
+## Run function locally
 
 Example:
 
@@ -16,6 +16,6 @@ sam local invoke KubernetesDashboard \
 --env-vars env.json
 ```
 
-### Pipeline
+## Pipeline
 
 Pipeline creation can be found under the pipeline/cdk folder. 
