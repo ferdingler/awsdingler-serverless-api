@@ -10,3 +10,6 @@ cdk.out
 # Parcel build directories
 .cache
 .build
+
+# Secrets and params
+params.json

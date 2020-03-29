@@ -5,10 +5,23 @@ import codepipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
 import codebuild = require('@aws-cdk/aws-codebuild');
 import lambda = require('@aws-cdk/aws-lambda');
 import kms = require('@aws-cdk/aws-kms');
+import iam = require('@aws-cdk/aws-iam');
+import params = require('../params.json');
 
 export class PipelineStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    /**
+     * Parameters
+     * Taken from local file `params.json`. Generally is better
+     * to take these parameters from ParameterStore or SecretsManager,
+     * but I am doing it this way for simplicity.
+     */
+    const githubToken = new cdk.SecretValue(params["github-oauth-token"]);
+    const k8sASGDev = params["k8s-asg-dev"];
+    const k8sASGProd = params["k8s-asg-prod"];
+    const prodCrossAccountRoleArn = params["cross-account-prod-role-arn"];
 
     // S3 bucket where build artifacts will be stored
     // Needs to be encrypted with a CMK key because we need to share this
@@ -17,14 +30,11 @@ export class PipelineStack extends cdk.Stack {
       encryption: s3.BucketEncryption.KMS,
       encryptionKey: new kms.Key(this, 'KmsKey', {
         alias: 'awsdingler-serverless-api-cicd-kms-key',
-        description: 'Key to deploy across accounts',
+        description: 'KMS key to deploy across accounts',
         enabled: true,
         enableKeyRotation: true,
       }),
     });
-
-    // Secrets Manager secret name for dynamic parameters (Check README)
-    const secretName = "awsdingler-serverless-api-cicd";
 
     // Pipeline creation starts
     const pipeline = new codepipeline.Pipeline(this, 'Pipeline', {
@@ -45,9 +55,7 @@ export class PipelineStack extends cdk.Stack {
         new codepipeline_actions.GitHubSourceAction({
           actionName: 'GitHub',
           owner: 'ferdingler',
-          oauthToken: cdk.SecretValue.secretsManager(secretName, {
-            jsonField: 'github-oauth-token'
-          }),
+          oauthToken: githubToken,
           repo: 'awsdingler-serverless-api',
           output: sourceOutput,
         }),
@@ -102,9 +110,7 @@ export class PipelineStack extends cdk.Stack {
           runOrder: 1,
           parameterOverrides: {
             'Environment': 'dev',
-            'AutoScalingGroupName': cdk.SecretValue.secretsManager(secretName, {
-              jsonField: 'k8s-asg-dev'
-            }),
+            'AutoScalingGroupName': k8sASGDev,
           }
         }),
         new codepipeline_actions.CloudFormationExecuteChangeSetAction({
@@ -120,8 +126,59 @@ export class PipelineStack extends cdk.Stack {
         new codepipeline_actions.LambdaInvokeAction({
           actionName: 'IntegrationTests',
           runOrder: 3,
-          lambda: lambda.Function.fromFunctionArn(this, "IntegrationTestsDev", integTestsLambdaArn),
+          lambda: lambda.Function.fromFunctionArn(
+            this, 
+            "IntegrationTestsDev", 
+            integTestsLambdaArn
+          ),
         })
+      ],
+    });
+
+    /**
+     * PROD STAGE
+     */
+    const prodRole = iam.Role.fromRoleArn(this,
+      'CrossAccountProdRole', 
+      prodCrossAccountRoleArn, {
+        mutable: false
+      }
+    );
+
+    pipeline.addStage({
+      stageName: 'Prod',
+      actions: [
+        new codepipeline_actions.CloudFormationCreateReplaceChangeSetAction({
+          actionName: 'CreateChangeSet',
+          runOrder: 1,
+          templatePath: buildOutput.atPath("packaged.yaml"),
+          stackName: 'awsdingler-serverless-api-prod',
+          adminPermissions: true,
+          changeSetName: 'awsdingler-serverless-api-prod-changeset',
+          /**
+           * Specifying a role in Prod is the key that allows
+           * the deployment to happen in the production account.
+           */
+          role: prodRole,
+          parameterOverrides: {
+            'Environment': 'prod',
+            'AutoScalingGroupName': k8sASGProd,
+          }
+        }),
+        /**
+         * Manual approval before executing ChangeSet
+         */
+        new codepipeline_actions.ManualApprovalAction({
+          actionName: 'Approval',
+          runOrder: 2,
+        }),
+        new codepipeline_actions.CloudFormationExecuteChangeSetAction({
+          actionName: 'Deploy',
+          runOrder: 3,
+          stackName: 'awsdingler-serverless-api-prod',
+          changeSetName: 'awsdingler-serverless-api-prod-changeset',
+          role: prodRole,
+        }),
       ],
     });
     
