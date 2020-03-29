@@ -7,6 +7,9 @@ import params = require('../params.json');
 
 const app = new cdk.App();
 
+/**
+ * Environment Definition
+ */
 const prod = {
     account: params["prod-account-id"],
     region: 'us-west-2',
@@ -17,5 +20,22 @@ const dev = {
     region: 'us-west-2',
 };
 
-new PipelineStack(app, 'awsdingler-serverless-api-cicd', { env: dev });
-new ProdIAMStack(app, 'awsdingler-serverless-api-cicd-prod', { env: prod });
+/**
+ * Stack to deploy in the DEV account
+ */
+const devStack = new PipelineStack(app, 'awsdingler-serverless-api-cicd', {
+    env: dev 
+});
+
+/**
+ * Stack to deploy in the PROD account
+ */
+const prodStack = new ProdIAMStack(app, 'awsdingler-serverless-api-cicd-prod', {
+    env: prod
+});
+
+/**
+ * Add tagging
+ */
+cdk.Tag.add(devStack, 'workload', 'awsdingler-serverless');
+cdk.Tag.add(prodStack, 'workload', 'awsdingler-serverless');

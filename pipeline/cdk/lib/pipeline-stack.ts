@@ -137,11 +137,12 @@ export class PipelineStack extends cdk.Stack {
       actions: [
         new codepipeline_actions.CloudFormationCreateReplaceChangeSetAction({
           actionName: 'CreateChangeSet',
-          templatePath: buildOutput.atPath("packaged.yaml"),
+          runOrder: 1,
+          templatePath: buildOutput.atPath('packaged.yaml'),
+          templateConfiguration: buildOutput.atPath('template-config.json'),
           stackName: 'awsdingler-serverless-api-dev',
           adminPermissions: true,
           changeSetName: 'awsdingler-serverless-api-dev-changeset',
-          runOrder: 1,
           parameterOverrides: {
             'Environment': 'dev',
             'AutoScalingGroupName': k8sASGDev,
@@ -149,9 +150,9 @@ export class PipelineStack extends cdk.Stack {
         }),
         new codepipeline_actions.CloudFormationExecuteChangeSetAction({
           actionName: 'Deploy',
+          runOrder: 2,
           stackName: 'awsdingler-serverless-api-dev',
           changeSetName: 'awsdingler-serverless-api-dev-changeset',
-          runOrder: 2
         }),
         /**
          * Integration tests that run on a Lambda function.
@@ -179,6 +180,7 @@ export class PipelineStack extends cdk.Stack {
           actionName: 'CreateChangeSet',
           runOrder: 1,
           templatePath: buildOutput.atPath("packaged.yaml"),
+          templateConfiguration: buildOutput.atPath('template-config.json'),
           stackName: 'awsdingler-serverless-api-prod',
           adminPermissions: true,
           changeSetName: 'awsdingler-serverless-api-prod-changeset',

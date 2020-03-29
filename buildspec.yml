@@ -46,6 +46,8 @@ artifacts:
   files:
     # list of local files relative to this build environment that will be added to the final artifact (zip)
     - packaged.yaml
+    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-cfn-artifacts.html
+    - template-config.json
   discard-paths: yes
 
 #########################################
