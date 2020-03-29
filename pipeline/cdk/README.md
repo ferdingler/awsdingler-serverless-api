@@ -4,7 +4,7 @@ This folder contains the definition of the continous integration and delivery pi
 
 ## How to create the pipeline
 
-1) First, create secrets in AWS Secrets Manager as described in the _Secrets_ section below. Then build this CDK project by running: 
+1) First, create `params.json` file as described bellow. Then build this CDK project by running: 
 
 ```
 npm run build
@@ -13,34 +13,29 @@ npm run build
 2) Deploy the resources in the prod account:
 
 ```
-cdk deploy awsdingler-serverless-api-cicd-prod
+cdk deploy awsdingler-serverless-api-cicd-prod --profile awsdingler
 ```
 
-Write down the CrossAccountRoleArn from the Outputs section and add it to the secret in the Dev account.
+Write down the CrossAccountRoleArn from the Outputs section and add it to the params.json file.
 
 3) Deploy the pipeline in the dev account:
 
 ```
-cdk deploy awsdingler-serverless-api-cicd
+cdk deploy awsdingler-serverless-api-cicd --profile dev
 ```
 
-## Secrets
+## Parameters
 
-The pipeline takes dynamic values from Secrets Manager, you need to create a Secret in the dev account and one in the prod account. The following describes each of them. 
+The pipeline takes dynamic values from file `params.json` with the following structure:
 
-### In the Dev account
-
-Secret Name: `awsdingler-serverless-api-cicd` with the following json keys: 
-
-- **Key**: github-oauth-token
-- **Key**: k8s-asg-dev
-- **Key**: k8s-asg-prod
-
-### In the Prod account
-
-Secret Name: `awsdingler-serverless-api-cicd` with the following json keys: 
-
-- **Key**: dev-account-id
+```
+{
+    "github-oauth-token": "123",
+    "k8s-asg-dev": "eksctl-awsdingler-k8s-nodegroup",
+    "k8s-asg-prod": "eksctl-awsdingler-k8s-nodegroup",
+    "cross-account-prod-role-arn": "arn:aws:iam::123:role/CrossAccountRole"
+}
+```
 
 ## Other Supported Commands
 
