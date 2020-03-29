@@ -48,7 +48,13 @@ export class ProdIAMStack extends cdk.Stack {
 
       // Needs S3 permissions to access artifacts in the DEV account
       crossAccountRole.addToPolicy(new iam.PolicyStatement({
-          actions: ['s3:*', 'kms:*'],
+          actions: ['s3:GetObject'],
+          resources: ['*']
+      }));
+
+      // Needs KMS permissions to decrypt objects in the DEV account
+      crossAccountRole.addToPolicy(new iam.PolicyStatement({
+          actions: ['kms:Decrypt'],
           resources: ['*']
       }));
 

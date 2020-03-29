@@ -41,17 +41,22 @@ export class PipelineStack extends cdk.Stack {
       }
     );
 
-    // S3 bucket where build artifacts will be stored
-    // Needs to be encrypted with a CMK key because we need to share this
-    // key with the PROD account to be able to deploy to across accounts.
+    /**
+     * Artifacts Bucket
+     * S3 bucket where build artifacts will be stored.
+     * Needs to be encrypted with a CMK key because we need to share this
+     * key with the PROD account to be able to deploy to across accounts.
+     */
+    const encryptionKey = new kms.Key(this, 'KmsKey', {
+      alias: 'awsdingler-serverless-api-cicd-kms-key',
+      description: 'KMS key to deploy across accounts',
+      enabled: true,
+      enableKeyRotation: true,
+    });
+
     const artifactsBucket = new s3.Bucket(this, "ArtifactsBucket", {
       encryption: s3.BucketEncryption.KMS,
-      encryptionKey: new kms.Key(this, 'KmsKey', {
-        alias: 'awsdingler-serverless-api-cicd-kms-key',
-        description: 'KMS key to deploy across accounts',
-        enabled: true,
-        enableKeyRotation: true,
-      }),
+      encryptionKey: encryptionKey,
     });
 
     // Add a bucket policy that grants production
@@ -204,6 +209,16 @@ export class PipelineStack extends cdk.Stack {
         }),
       ],
     });
-    
+
+    /**
+     * Outputs
+     */
+    new cdk.CfnOutput(this, 'ArtifactsBucketArn', {
+      value: artifactsBucket.bucketArn,
+    });
+
+    new cdk.CfnOutput(this, 'KMSKeyArn', {
+      value: encryptionKey.keyArn,
+    });
   }
 }

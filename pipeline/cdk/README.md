@@ -2,31 +2,9 @@
 
 This folder contains the definition of the continous integration and delivery pipeline for the project. It is a multi stage cross-account CodePipeline defined using the AWS CDK. It uses GitHub, CodeBuild and CloudFormation.
 
-## How to create the pipeline
+## Parameters JSON
 
-1) First, create `params.json` file as described bellow. Then build this CDK project by running: 
-
-```
-npm run build
-```
-
-2) Deploy the resources in the prod account:
-
-```
-cdk deploy awsdingler-serverless-api-cicd-prod --profile awsdingler
-```
-
-Write down the CrossAccountRoleArn from the Outputs section and add it to the params.json file.
-
-3) Deploy the pipeline in the dev account:
-
-```
-cdk deploy awsdingler-serverless-api-cicd --profile dev
-```
-
-## Parameters
-
-The pipeline takes dynamic values from file `params.json` with the following structure:
+To deploy the pipeline, first create a file `params.json` with the following key-value pairs. You will need to wait to add some of the values after deploying the Prod stack. 
 
 ```
 {
@@ -38,6 +16,26 @@ The pipeline takes dynamic values from file `params.json` with the following str
     "dev-account-id": "987654321",
     "prod-account-id": "123456789"
 }
+```
+
+## Deploy the pipeline
+
+Build the CDK project by running: 
+
+```
+npm run build
+```
+
+Deploy the resources in the prod account:
+
+```
+cdk deploy awsdingler-serverless-api-cicd-prod --profile awsdingler
+```
+
+Write down the CrossAccountRoleArn and DeployerRole from the Outputs section and add it to the `params.json` file. Now you can deploy the pipeline in the Dev account:
+
+```
+cdk deploy awsdingler-serverless-api-cicd --profile dev
 ```
 
 ## Other Supported Commands
