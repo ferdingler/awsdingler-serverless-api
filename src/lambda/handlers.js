@@ -1,6 +1,5 @@
 const hello = require('../hello');
 const k8s = require('../k8s');
-const imgworkflow = require('../imgworkflow');
 
 exports.helloWorld = async (event) => {
     console.log('Event=', event);
@@ -22,28 +21,6 @@ exports.k8sDashboard = async (event) => {
         console.log('Got error=', err);
     }
     return true;
-};
-
-/**
- * State machine functions
- */
-exports.validateImage = async (state) => {
-    console.log('State=', JSON.stringify(state));
-    return imgworkflow.validateImage(state);
-};
-
-exports.imageToPdf = async (state) => {
-    console.log('State=', JSON.stringify(state));
-    return imgworkflow.imageToPdf(state);
-};
-
-exports.startImageProcessingWorkflow = async (event) => {
-    console.log('Event=', JSON.stringify(event));
-    if (event.Records) {
-        // https://docs.aws.amazon.com/lambda/latest/dg/with-s3.html
-        const s3Event = event.Records[0].s3;
-        return imgworkflow.startExecution(s3Event);
-    }
 };
 
 const buildResponse = (statusCode, body) => {

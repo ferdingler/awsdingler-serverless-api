@@ -79,6 +79,7 @@ export class CdkStack extends cdk.Stack {
     /**
      * DEV STAGE
      */
+    const integTestsLambdaArn = cdk.Fn.importValue("awsdingler-serverless-api-integ-tests-arn-dev");
     pipeline.addStage({
       stageName: 'Dev',
       actions: [
@@ -102,10 +103,14 @@ export class CdkStack extends cdk.Stack {
           changeSetName: 'awsdingler-serverless-api-dev-changeset',
           runOrder: 2
         }),
+        /**
+         * Integration tests that run on a Lambda function.
+         * Lambda ARN is imported from CloudFormation output values
+         */
         new codepipeline_actions.LambdaInvokeAction({
           actionName: 'IntegrationTests',
           runOrder: 3,
-          lambda: null,
+          lambda: lambda.Function.fromFunctionArn(this, "IntegrationTestsDev", integTestsLambdaArn),
         })
       ],
     });
