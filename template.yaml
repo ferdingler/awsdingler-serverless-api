@@ -131,6 +131,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
+      TracingEnabled: true
       DefinitionBody:
         swagger: "2.0"
         info:
