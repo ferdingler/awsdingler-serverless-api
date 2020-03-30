@@ -105,6 +105,7 @@ export class PipelineStack extends cdk.Stack {
 
     // CodeBuild project definition
     const buildProject = new codebuild.PipelineProject(this, 'Build', {
+      badge: true,
       environment: {
         buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_2,
         computeType: codebuild.ComputeType.SMALL
