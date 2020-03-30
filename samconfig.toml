@@ -8,5 +8,5 @@ s3_prefix = "awsdingler-serverless-api-local"
 region = "us-west-2"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "AutoScalingGroupName=\"eksctl-awsdingler-k8s-nodegroup-nodegroup-1-NodeGroup-13PQNMASKPXWX\" Environment=\"local\""
-
+parameter_overrides = "AutoScalingGroupName=\"eksctl-awsdingler-k8s-nodegroup-bananas-1-15-NodeGroup-120RTWN80ZI2W\" Environment=\"local\""
+tags = "workload=awsdingler-serverless"
