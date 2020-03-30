@@ -132,6 +132,7 @@ Resources:
     Properties:
       StageName: Prod
       TracingEnabled: true
+      OpenApiVersion: "2.0"
       DefinitionBody:
         swagger: "2.0"
         info:
