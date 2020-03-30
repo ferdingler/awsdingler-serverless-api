@@ -1,4 +1,5 @@
-const AWS = require('aws-sdk');
+const AWSXRay = require('aws-xray-sdk');
+const AWS = AWSXRay.captureAWS(require('aws-sdk'));
 const s3 = new AWS.S3();
 
 const s3Bucket = process.env['RESULTS_S3_BUCKET'];

@@ -8,10 +8,16 @@ Deployment config is found in `samconfig.toml`. This is to run `sam deploy` to c
 
 ## Run function locally
 
-Example:
+Examples:
 
 ```
 sam local invoke KubernetesDashboard \
+--event events/k8s.json \
+--env-vars env.json
+```
+
+```
+sam local invoke HelloWorldFunction \
 --event events/hello.json \
 --env-vars env.json
 ```

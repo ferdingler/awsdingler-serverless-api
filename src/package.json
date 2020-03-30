@@ -8,6 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.437.0",
+    "aws-xray-sdk": "^2.5.0",
     "axios": "^0.18.1",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",

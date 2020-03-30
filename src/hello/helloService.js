@@ -1,3 +1,6 @@
+const AWSXRay = require('aws-xray-sdk');
+AWSXRay.captureHTTPsGlobal(require('http'));
+
 const axios = require('axios');
 const url = 'http://checkip.amazonaws.com/';
 
