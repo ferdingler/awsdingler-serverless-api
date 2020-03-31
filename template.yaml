@@ -32,8 +32,14 @@ Resources:
       Handler: lambda/handlers.helloWorld
       Runtime: nodejs10.x
       Timeout: 10
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt HelloQueue.QueueName
       Layers:
         - !Ref CommonLayer
+      Environment:
+        Variables:
+          HELLO_QUEUE_URL: !Ref HelloQueue
       DeploymentPreference:
         Type: !If [IsProdEnvironment, Canary10Percent5Minutes, AllAtOnce]
         Alarms:
@@ -83,6 +89,12 @@ Resources:
                 - codepipeline:PutJobSuccessResult
                 - codepipeline:PutJobFailureResult
               Resource: "*"
+
+  HelloTable:
+    Type: AWS::Serverless::SimpleTable
+
+  HelloQueue:
+    Type: AWS::SQS::Queue
 
   KubernetesDashboard:
     Type: AWS::Serverless::Function

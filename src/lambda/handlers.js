@@ -5,6 +5,7 @@ exports.helloWorld = async (event) => {
     console.log('Event=', event);
     try {
         const msg = await hello.sayHello();
+        await hello.queueHello(msg);
         response = buildResponse(200, msg);
     } catch (err) {
         console.log('Got error=', err);

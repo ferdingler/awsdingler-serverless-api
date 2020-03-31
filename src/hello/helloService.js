@@ -4,8 +4,9 @@
 const AWSXRay = require('aws-xray-sdk');
 AWSXRay.captureHTTPsGlobal(require('http'));
 AWSXRay.setContextMissingStrategy("LOG_ERROR");
+
 /**
- * Import libraries
+ * Import other libraries
  */
 const axios = require('axios');
 
