@@ -3,3 +3,4 @@ const queue = require('./queue');
 
 exports.sayHello = helloService.sayHello;
 exports.queueHello = queue.queueHelloMessage;
+exports.saveHelloMessage = helloService.saveHelloMessage;

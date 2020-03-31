@@ -95,6 +95,29 @@ Resources:
 
   HelloQueue:
     Type: AWS::SQS::Queue
+  
+  HelloQueueProcessor:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: lambda/handlers.helloProcessor
+      Timeout: 30
+      Runtime: nodejs10.x
+      Environment:
+        Variables:
+          HELLO_DYNAMO_TABLE: !Ref HelloTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HelloTable
+        - SQSPollerPolicy:
+            QueueName: !GetAtt HelloQueue.QueueName
+      Events:
+        QueuePolling:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt HelloQueue.Arn
+            BatchSize: 1
+            Enabled: true
 
   KubernetesDashboard:
     Type: AWS::Serverless::Function

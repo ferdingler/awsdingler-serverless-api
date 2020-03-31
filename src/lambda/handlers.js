@@ -1,6 +1,9 @@
 const hello = require('../hello');
 const k8s = require('../k8s');
 
+/**
+ * Invoked by API Gateway on GET /hello
+ */
 exports.helloWorld = async (event) => {
     console.log('Event=', event);
     try {
@@ -14,6 +17,25 @@ exports.helloWorld = async (event) => {
     return response;
 };
 
+/**
+ * Invoked by SQS
+ */
+exports.helloProcessor = async(event) => {
+    console.log('Event=', event);
+    try {
+        const promises = event.Records.map(message => hello.saveHelloMessage(message));
+        await Promise.all(promises);
+    } catch (err) {
+        console.log('Got error=', err);
+        throw err;
+    }
+    console.log('Messages processed');
+    return true;
+};
+
+/**
+ * Invoked by CloudWatch Events on rate(5 min)
+ */
 exports.k8sDashboard = async (event) => {
     console.log('Event=', event);
     try {
