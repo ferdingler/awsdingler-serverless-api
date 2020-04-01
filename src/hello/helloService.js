@@ -45,7 +45,6 @@ exports.sayHello = async () => {
  */
 exports.saveHelloMessage = async (msg) => {
     console.log('Saving hello message to dynamodb', msg);
-    console.log('Table name', tableName);
     const putResponse = await documentClient.put({
         TableName: tableName,
         Item: {

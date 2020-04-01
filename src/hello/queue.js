@@ -10,7 +10,6 @@ const queueUrl = process.env['HELLO_QUEUE_URL'];
  */
 exports.queueHelloMessage = async (helloMessage) => {
     console.log('Queueing hello message', helloMessage);
-    console.log('SQS queue url=', queueUrl);
     const response = await sqs.sendMessage({
         QueueUrl: queueUrl,
         MessageBody: JSON.stringify(helloMessage),

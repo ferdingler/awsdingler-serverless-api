@@ -6,12 +6,13 @@ const k8s = require('../k8s');
  */
 exports.helloWorld = async (event) => {
     console.log('Event=', event);
+    console.log('Environment variables=', JSON.stringify(process.env));
     try {
         const msg = await hello.sayHello();
         await hello.queueHello(msg);
         response = buildResponse(200, msg);
     } catch (err) {
-        console.log('Got error=', err);
+        console.error('Got error=', err);
         response = buildResponse(500, err);
     }
     return response;
@@ -21,12 +22,13 @@ exports.helloWorld = async (event) => {
  * Invoked by SQS
  */
 exports.helloProcessor = async(event) => {
-    console.log('Event=', event);
+    console.log('Event=', JSON.stringify(event));
+    console.log('Environment variables=', JSON.stringify(process.env));
     try {
         const promises = event.Records.map(message => hello.saveHelloMessage(message));
         await Promise.all(promises);
     } catch (err) {
-        console.log('Got error=', err);
+        console.error('Got error=', err);
         throw err;
     }
     console.log('Messages processed');
@@ -38,10 +40,11 @@ exports.helloProcessor = async(event) => {
  */
 exports.k8sDashboard = async (event) => {
     console.log('Event=', event);
+    console.log('Environment variables=', JSON.stringify(process.env));
     try {
         await k8s.generateDashboardToS3();
     } catch (err) {
-        console.log('Got error=', err);
+        console.error('Got error=', err);
     }
     return true;
 };
