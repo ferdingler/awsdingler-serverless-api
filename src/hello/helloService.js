@@ -14,34 +14,22 @@ const documentClient = new AWS.DynamoDB.DocumentClient();
 const tableName = process.env['HELLO_DYNAMO_TABLE'];
 
 exports.sayHello = async () => {
-    const url = 'http://checkip.amazonaws.com/';
-    const ret = await axios(url);
-    const ip = ret.data.trim();
-    const message = {
-        message: 'Hello World',
-        location: ip,
-    };
-    return message;
+    try {
+        const url = 'http://checkip.amazonaws.com/';
+        const ret = await axios.get(url, { timeout: 5000 });
+        const ip = ret.data.trim();
+        console.info('Response from checkip.amazonaws.com =', ip);
+        const message = { message: 'Hello World', location: ip };
+        return message;
+    } catch (err) {
+        console.error('Error on request to checkip.amazonaws.com', err.message);
+        throw err;
+    }
 };
 
 /**
- * Receives a helloMsg from SQS with the following format
- * {
-        "messageId": "059f36b4-87a3-44ab-83d2-661975830a7d",
-        "receiptHandle": "AQEBwJnKyrHigUMZj6rYigCgxlaS3SLy0a...",
-        "body": "{\"message\":\"Hello World\",\"location\":\"34.211.55.231\"}",
-        "attributes": {
-            "ApproximateReceiveCount": "1",
-            "SentTimestamp": "1545082649183",
-            "SenderId": "AIDAIENQZJOLO23YVJ4VO",
-            "ApproximateFirstReceiveTimestamp": "1545082649185"
-        },
-        "messageAttributes": {},
-        "md5OfBody": "e4e68fb7bd0e697a0ae8f1bb342846b3",
-        "eventSource": "aws:sqs",
-        "eventSourceARN": "arn:aws:sqs:us-east-2:123456789012:my-queue",
-        "awsRegion": "us-east-2"
-    },
+ * Receives a msg from SQS and saves it into DynamoDB.
+ * The format of the msg is the standard SQS Event Input.
  */
 exports.saveHelloMessage = async (msg) => {
     console.log('Saving hello message to dynamodb', msg);

@@ -43,6 +43,7 @@ exports.k8sDashboard = async (event) => {
     console.log('Environment variables=', JSON.stringify(process.env));
     try {
         await k8s.generateDashboardToS3();
+        console.log('Dashboard generated');
     } catch (err) {
         console.error('Got error=', err);
     }
