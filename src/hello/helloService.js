@@ -2,13 +2,19 @@
  * X-ray tracing http calls
  */
 const AWSXRay = require('aws-xray-sdk');
-AWSXRay.captureHTTPsGlobal(require('http'));
-AWSXRay.setContextMissingStrategy("LOG_ERROR");
+
+// Configure context missing strategy when running on lambda
+if (process.env['AWS_XRAY_CONTEXT_MISSING']) {
+    AWSXRay.captureHTTPsGlobal(require('http'));
+    // AWSXRay.setContextMissingStrategy("LOG_ERROR");
+}
+
 /**
  * Import other libraries
  */
 const AWS = AWSXRay.captureAWS(require('aws-sdk'));
 const axios = require('axios');
+const moment = require('moment');
 
 const documentClient = new AWS.DynamoDB.DocumentClient();
 const tableName = process.env['HELLO_DYNAMO_TABLE'];
@@ -33,13 +39,16 @@ exports.sayHello = async () => {
  */
 exports.saveHelloMessage = async (msg) => {
     console.log('Saving hello message to dynamodb', msg);
+    const expiration = moment().add(7, 'days');
     const putResponse = await documentClient.put({
         TableName: tableName,
         Item: {
-            id: msg.messageId,
+            messageId: msg.messageId,
             body: msg.body,
             receiptHandle: msg.receiptHandle,
-            md5OfBody: msg.md5OfBody
+            md5OfBody: msg.md5OfBody,
+            timestamp: parseInt(msg.attributes['SentTimestamp']),
+            expirationTime: expiration.unix()
         }
     }).promise();
     console.log('Response from dynamo', putResponse);

@@ -116,8 +116,27 @@ Resources:
                 - codepipeline:PutJobFailureResult
               Resource: "*"
 
-  HelloTable:
-    Type: AWS::Serverless::SimpleTable
+  HelloMessagesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        -
+          AttributeName: "messageId"
+          AttributeType: "S"
+        -
+          AttributeName: "timestamp"
+          AttributeType: "N"
+      KeySchema:
+        - 
+          AttributeName: "messageId"
+          KeyType: "HASH"
+        - 
+          AttributeName: "timestamp"
+          KeyType: "RANGE"
+      TimeToLiveSpecification:
+        AttributeName: "expirationTime"
+        Enabled: true
 
   HelloQueue:
     Type: AWS::SQS::Queue
@@ -132,10 +151,10 @@ Resources:
       MemorySize: 256
       Environment:
         Variables:
-          HELLO_DYNAMO_TABLE: !Ref HelloTable
+          HELLO_DYNAMO_TABLE: !Ref HelloMessagesTable
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref HelloTable
+            TableName: !Ref HelloMessagesTable
         - SQSPollerPolicy:
             QueueName: !GetAtt HelloQueue.QueueName
       Events:

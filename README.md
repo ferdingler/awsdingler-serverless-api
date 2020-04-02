@@ -22,6 +22,12 @@ sam local invoke HelloWorldFunction \
 --env-vars env.json
 ```
 
+```
+sam local invoke HelloQueueProcessor \
+--event events/sqs.json \
+--env-vars env.json
+```
+
 ## Pipeline
 
 Pipeline creation can be found under the pipeline/cdk folder. 
