@@ -45,6 +45,8 @@ Resources:
         Type: !If [IsProdEnvironment, Canary10Percent5Minutes, AllAtOnce]
         Alarms:
           - !Ref HelloCanaryErrorsAlarm
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 1
       Events:
         Hello:
           Type: Api
@@ -71,6 +73,29 @@ Resources:
           Value: !Ref HelloWorldFunction
         - Name: ExecutedVersion
           Value: !GetAtt HelloWorldFunction.Version.Version
+
+  HelloWorldScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    DependsOn: HelloWorldFunctionAliaslive # Function logical ID + "Alias" + "live"
+    Properties:
+      MaxCapacity: !If [IsProdEnvironment, 2500, 500]
+      MinCapacity: 1
+      ResourceId: !Sub function:${HelloWorldFunction}:live # Must specify alias or version
+      # Role ARN: https://docs.aws.amazon.com/autoscaling/application/userguide/application-auto-scaling-service-linked-roles.html
+      RoleARN: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/aws-service-role/lambda.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_LambdaConcurrency
+      ScalableDimension: lambda:function:ProvisionedConcurrency
+      ServiceNamespace: lambda
+
+  HelloWorldScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Sub "${HelloWorldFunction}-scaling-policy"
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref HelloWorldScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 0.50
+        PredefinedMetricSpecification:
+          PredefinedMetricType: LambdaProvisionedConcurrencyUtilization
 
   HelloIntegrationTests:
     Type: AWS::Serverless::Function
