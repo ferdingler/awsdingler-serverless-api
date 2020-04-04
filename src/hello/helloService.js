@@ -18,10 +18,12 @@ const moment = require('moment');
 
 const documentClient = new AWS.DynamoDB.DocumentClient();
 const tableName = process.env['HELLO_DYNAMO_TABLE'];
+axios.defaults.timeout = 5000;
 
 exports.sayHello = async () => {
     try {
         const url = 'http://checkip.amazonaws.com/';
+        console.info('Ping to checkip.amazonaws.com');
         const ret = await axios.get(url, { timeout: 5000 });
         const ip = ret.data.trim();
         console.info('Response from checkip.amazonaws.com =', ip);
