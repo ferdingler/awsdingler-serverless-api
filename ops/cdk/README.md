@@ -38,6 +38,40 @@ Write down the CrossAccountRoleArn and DeployerRole from the Outputs section and
 cdk deploy awsdingler-serverless-api-cicd --profile dev
 ```
 
+## Deploy Ops Dashboard
+
+Ops dashboard is implemented as a CloudWatch dashboard on its own CDK stack. To deploy it, you first need to have deployed the DEV and PROD stacks first because the dashboard displays metrics for those resources and if they don't exist, no metrics can be displayed. 
+
+Add the following entries to the `params.json` file: 
+
+```
+"ops-dashboard": {
+    "dev": {
+        "helloWorldFunctionName": "awsdingler-serverless-api-dev-HelloWorldFunction-123",
+        "helloQueueProcessorName": "awsdingler-serverless-api-dev-HelloQueueProcessor-123",
+        "apiGatewayName": "awsdingler-api-dev",
+        "helloSqsQueueName": "awsdingler-serverless-api-dev-HelloQueue-123",
+        "dynamoHelloMessagesTableName": "awsdingler-serverless-api-dev-HelloMessagesTable-123",
+        "kubernetesDashboardFunctionName": "awsdingler-serverless-api-dev-KubernetesDashboard-123"
+    },
+    "prod": {
+        "helloWorldFunctionName": "awsdingler-serverless-api-prod-HelloWorldFunction-123",
+        "helloQueueProcessorName": "awsdingler-serverless-api-prod-HelloQueueProcessor-123",
+        "apiGatewayName": "awsdingler-api-prod",
+        "helloSqsQueueName": "awsdingler-serverless-api-prod-HelloQueue-123",
+        "dynamoHelloMessagesTableName": "awsdingler-serverless-api-prod-HelloMessagesTable-123",
+        "kubernetesDashboardFunctionName": "awsdingler-serverless-api-prod-KubernetesDashboard-123"
+    }
+}
+```
+
+Then deploy the dashboard in either environment: 
+
+```
+cdk deploy serverless-api-ops-dev
+cdk deploy serverless-api-ops-prod
+```
+
 ## Other Supported Commands
 
  * `npm run build`   compile typescript to js
