@@ -3,6 +3,7 @@ import 'source-map-support/register';
 import * as cdk from '@aws-cdk/core';
 import { PipelineStack } from '../lib/pipeline-stack';
 import { ProdIAMStack } from '../lib/prod-iam-stack';
+import { OpsDashboardStack } from '../lib/ops-dash-stack';
 import params = require('../params.json');
 
 const app = new cdk.App();
@@ -35,7 +36,23 @@ const prodStack = new ProdIAMStack(app, 'awsdingler-serverless-api-cicd-prod', {
 });
 
 /**
+ * OpsDashboard
+ */
+const devDashboard = new OpsDashboardStack(app, 'serverless-api-ops-dev', {
+    isProd: false,
+    stackProps: { env: dev }
+});
+const prodDashboard = new OpsDashboardStack(app, 'serverless-api-ops-prod', {
+    isProd: true,
+    stackProps: { env: prod }
+});
+
+/**
  * Add tagging
  */
-cdk.Tag.add(devStack, 'workload', 'awsdingler-serverless');
-cdk.Tag.add(prodStack, 'workload', 'awsdingler-serverless');
+const workloadTag = "awsdingler-serverless";
+
+cdk.Tag.add(devStack, 'workload', workloadTag);
+cdk.Tag.add(prodStack, 'workload', workloadTag);
+cdk.Tag.add(devDashboard, 'workload', workloadTag);
+cdk.Tag.add(prodDashboard, 'workload', workloadTag);

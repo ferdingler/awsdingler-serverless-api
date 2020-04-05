@@ -1,6 +1,6 @@
-# CI/CD Pipeline
+# Operations
 
-This folder contains the definition of the continous integration and delivery pipeline for the project. It is a multi stage cross-account CodePipeline defined using the AWS CDK. It uses GitHub, CodeBuild and CloudFormation.
+This folder contains a CDK project to programmatically launch Ops related resources like a CI/CD pipeline, IAM roles for the production account and a CloudWatch dashboard. 
 
 ## Parameters JSON
 
