@@ -210,10 +210,18 @@ Resources:
 
   ServerlessApi:
     Type: AWS::Serverless::Api
+    DependsOn: ApiAccountSettings
     Properties:
       StageName: Prod
       TracingEnabled: true
       OpenApiVersion: "2.0"
+      AccessLogSetting: 
+        DestinationArn: !GetAtt ApiAccessLogs.Arn
+        Format:
+          $context.identity.sourceIp $context.identity.caller  \
+          $context.identity.user [$context.requestTime] \
+          "$context.httpMethod $context.resourcePath $context.protocol" \
+          $context.status $context.responseLength $context.requestId
       DefinitionBody:
         swagger: "2.0"
         info:
@@ -246,6 +254,31 @@ Resources:
                 passthroughBehavior: "when_no_match"
                 httpMethod: "POST"
                 type: "aws_proxy"
+  
+  ApiAccessLogs:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      RetentionInDays: 180
+
+  ApiAccountSettings:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn: !GetAtt ApiCloudWatchRole.Arn
+
+  ApiCloudWatchRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
 
 Outputs:
   IntegrationTestsLambda:
