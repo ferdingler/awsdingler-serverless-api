@@ -1,6 +1,3 @@
-/**
- * X-ray tracing http calls
- */
 const AWSXRay = require('aws-xray-sdk');
 
 // Configure context missing strategy when running on lambda
@@ -15,12 +12,13 @@ if (process.env['AWS_XRAY_CONTEXT_MISSING']) {
 const AWS = AWSXRay.captureAWS(require('aws-sdk'));
 const axios = require('axios');
 const moment = require('moment');
+const { withCountMetric } = require("./metrics");
 
 const documentClient = new AWS.DynamoDB.DocumentClient();
 const tableName = process.env['HELLO_DYNAMO_TABLE'];
 axios.defaults.timeout = 5000;
 
-exports.sayHello = async () => {
+async function sayHello() {
     try {
         const url = 'http://checkip.amazonaws.com/';
         console.info('Ping to checkip.amazonaws.com');
@@ -33,7 +31,7 @@ exports.sayHello = async () => {
         console.error('Error on request to checkip.amazonaws.com', err.message);
         throw err;
     }
-};
+}
 
 /**
  * Receives a msg from SQS and saves it into DynamoDB.
@@ -56,3 +54,5 @@ exports.saveHelloMessage = async (msg) => {
     console.log('Response from dynamo', putResponse);
     return putResponse;
 };
+
+exports.sayHello = withCountMetric("SayHello", sayHello);

@@ -7,6 +7,7 @@
   "author": "SAM CLI",
   "license": "MIT",
   "dependencies": {
+    "aws-embedded-metrics": "^2.0.4",
     "aws-sdk": "^2.437.0",
     "aws-xray-sdk": "^2.5.0",
     "axios": "^0.21.1",
