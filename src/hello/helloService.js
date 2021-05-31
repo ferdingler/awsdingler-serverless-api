@@ -12,12 +12,18 @@ if (process.env['AWS_XRAY_CONTEXT_MISSING']) {
 const AWS = AWSXRay.captureAWS(require('aws-sdk'));
 const axios = require('axios');
 const moment = require('moment');
+const { Unit } = require("aws-embedded-metrics");
+const { LambdaMetrics } = require("../metrics");
 
 const documentClient = new AWS.DynamoDB.DocumentClient();
 const tableName = process.env['HELLO_DYNAMO_TABLE'];
 axios.defaults.timeout = 5000;
 
 exports.sayHello = async (name) => {
+
+    LambdaMetrics.putDimensions({ Operation: "SayHello" });
+    LambdaMetrics.putMetric("Count", 1.0, Unit.Count);
+
     try {
         const url = 'http://checkip.amazonaws.com/';
         console.info('Ping to checkip.amazonaws.com');
@@ -25,8 +31,11 @@ exports.sayHello = async (name) => {
         const ip = ret.data.trim();
         console.info('Response from checkip.amazonaws.com =', ip);
         const message = { message: `Hello ${name}`, location: ip };
+
+        LambdaMetrics.putMetric("Success", 1.0, Unit.Count);
         return message;
     } catch (err) {
+        LambdaMetrics.putMetric("Error", 1.0, Unit.Count);
         console.error('Error on request to checkip.amazonaws.com', err.message);
         throw err;
     }

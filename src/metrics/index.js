@@ -19,6 +19,7 @@ const LambdaMetrics = createMetricsLogger();
 exports.withMetrics = (handler) => {
   return async (...args) => {
     try {
+      LambdaMetrics.setNamespace("Dingler");
       return await handler(...args);
     } finally {
       try {
