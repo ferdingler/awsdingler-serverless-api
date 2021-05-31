@@ -1,9 +1,9 @@
 const AWSXRay = require('aws-xray-sdk');
+AWSXRay.setContextMissingStrategy("LOG_ERROR");
 
 // Configure context missing strategy when running on lambda
 if (process.env['AWS_XRAY_CONTEXT_MISSING']) {
     AWSXRay.captureHTTPsGlobal(require('http'));
-    // AWSXRay.setContextMissingStrategy("LOG_ERROR");
 }
 
 /**
@@ -12,13 +12,12 @@ if (process.env['AWS_XRAY_CONTEXT_MISSING']) {
 const AWS = AWSXRay.captureAWS(require('aws-sdk'));
 const axios = require('axios');
 const moment = require('moment');
-const { withCountMetric } = require("./metrics");
 
 const documentClient = new AWS.DynamoDB.DocumentClient();
 const tableName = process.env['HELLO_DYNAMO_TABLE'];
 axios.defaults.timeout = 5000;
 
-async function sayHello(name) {
+exports.sayHello = async (name) => {
     try {
         const url = 'http://checkip.amazonaws.com/';
         console.info('Ping to checkip.amazonaws.com');
@@ -55,4 +54,3 @@ exports.saveHelloMessage = async (msg) => {
     return putResponse;
 };
 
-exports.sayHello = withCountMetric("SayHello", sayHello);

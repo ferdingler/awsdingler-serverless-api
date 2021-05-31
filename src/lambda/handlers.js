@@ -1,14 +1,15 @@
 const hello = require('../hello');
 const k8s = require('../k8s');
+const { withMetrics } = require("../metrics");
 
 /**
  * Invoked by API Gateway on GET /hello
  */
-exports.helloWorld = async (event) => {
+exports.helloWorld = withMetrics(async (event) => {
     console.log('Event=', event);
     console.log('Environment variables=', JSON.stringify(process.env));
     try {
-        const msg = await hello.sayHello();
+        const msg = await hello.sayHello("World");
         await hello.queueHello(msg);
         response = buildResponse(200, msg);
     } catch (err) {
@@ -16,7 +17,7 @@ exports.helloWorld = async (event) => {
         response = buildResponse(500, err);
     }
     return response;
-};
+});
 
 /**
  * Invoked by SQS
