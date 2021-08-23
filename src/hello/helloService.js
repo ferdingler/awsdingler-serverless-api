@@ -30,7 +30,7 @@ exports.sayHello = async (name) => {
         const ret = await axios.get(url, { timeout: 5000 });
         const ip = ret.data.trim();
         console.info('Response from checkip.amazonaws.com =', ip);
-        const message = { message: `Hello ${name}`, location: ip };
+        const message = { message: `Hello ${name}`, location: ip, timestamp: new Date().getTime() };
 
         LambdaMetrics.putMetric("Success", 1.0, Unit.Count);
         return message;
