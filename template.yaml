@@ -30,7 +30,7 @@ Resources:
     Properties:
       CodeUri: src/
       Handler: lambda/handlers.helloWorld
-      Runtime: nodejs10.x
+      Runtime: nodejs12.x
       Timeout: 10
       MemorySize: 256
       Policies:
@@ -103,7 +103,7 @@ Resources:
       CodeUri: integtests/
       Handler: hello.handler
       Timeout: 30
-      Runtime: nodejs10.x
+      Runtime: nodejs12.x
       Environment:
         Variables:
           HELLO_LAMBDA_ENDPOINT: !Sub "https://${ServerlessApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
@@ -147,7 +147,7 @@ Resources:
       CodeUri: src/
       Handler: lambda/handlers.helloProcessor
       Timeout: 30
-      Runtime: nodejs10.x
+      Runtime: nodejs12.x
       MemorySize: 256
       Environment:
         Variables:
@@ -170,7 +170,7 @@ Resources:
     Properties:
       CodeUri: src/
       Handler: lambda/handlers.k8sDashboard
-      Runtime: nodejs10.x
+      Runtime: nodejs12.x
       Timeout: 300
       MemorySize: 512
       Environment:
@@ -205,7 +205,7 @@ Resources:
       Description: Reusable utility functions
       ContentUri: src/lambda/layers/
       CompatibleRuntimes:
-        - nodejs10.x
+        - nodejs12.x
       LicenseInfo: 'MIT-0'
 
   ServerlessApi:
