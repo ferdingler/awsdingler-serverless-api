@@ -42,7 +42,8 @@ Resources:
         Variables:
           HELLO_QUEUE_URL: !Ref HelloQueue
       DeploymentPreference:
-        Type: !If [IsProdEnvironment, Canary10Percent5Minutes, AllAtOnce]
+        # Type: !If [IsProdEnvironment, Canary10Percent5Minutes, AllAtOnce]
+        Type: AllAtOnce
         Alarms:
           - !Ref HelloCanaryErrorsAlarm
       ProvisionedConcurrencyConfig:
