@@ -57,7 +57,7 @@ const buildResponse = (statusCode, body) => {
         'body': JSON.stringify(body),
         'headers': {
             'Access-Control-Allow-Origin': '*',
-            'Cache-Control': 'no-store'
+            'Cache-Control': 'no-store, max-age=0'
         },
     };
 };
